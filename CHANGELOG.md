@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [1.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.0.0...1.1.0)
+
+> 26 February 2020
+
+- Allow passing a path, instead of an asset [`#1`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/1)
+- Usage documentation [`0354dd4`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/0354dd43e2e4d2acd81fe536b0ab518891d47265)
+
 #### 1.0.0
 
 > 26 February 2020

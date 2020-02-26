@@ -1,6 +1,6 @@
 {
     "name": "sops-secretsmanager-cdk",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "scripts": {
         "postinstall": "npm run tsc && npm run get-sops",
         "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./provider/sops && chmod a+x ./provider/sops",
