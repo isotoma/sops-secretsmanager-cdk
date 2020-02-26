@@ -1,0 +1,22 @@
+{
+    "name": "sops-secretsmanager-cdk",
+    "scripts": {
+        "postinstall": "npm run tsc && npm run get-sops",
+        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./provider/sops && chmod a+x ./provider/sops",
+        "tsc": "tsc"
+    },
+    "dependencies": {
+        "@types/node": ">=10"
+    },
+    "peerDependencies": {
+        "@aws-cdk/aws-lambda": "^1.21.1",
+        "@aws-cdk/aws-iam": "^1.21.1",
+        "@aws-cdk/aws-s3": "^1.21.1",
+        "@aws-cdk/aws-s3-assets": "^1.21.1",
+        "@aws-cdk/aws-kms": "^1.21.1",
+        "@aws-cdk/aws-secretsmanager": "^1.21.1",
+        "@aws-cdk/core": "^1.21.1",
+        "@aws-cdk/custom-resources": "^1.21.1",
+        "@aws-cdk/aws-cloudformation": "^1.21.1"
+    }
+}
