@@ -7,9 +7,7 @@ Safely load secrets from sops into secretsmanager using the CDK
 import { SopsSecretsManager } from 'sops-secretsmanager-cdk';
 ...
 new SopsSecretsManager(this, 'StoreSecrets', {
-    asset: new s3Assets.Asset(this, 'SopsAsset', {
-        path: './path/to/secretsfile.yaml',
-    }),
+    path: './path/to/secretsfile.yaml',
     kmsKey: myKey,  // or use kms.Key.fromKeyArn
     secretName: 'TestSecret',  // or secret: mySecret
     mappings: {

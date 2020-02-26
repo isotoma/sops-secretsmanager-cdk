@@ -24,7 +24,8 @@ export interface SopsSecretsManagerMappings {
 export interface SopsSecretsManagerProps {
     readonly secret?: secretsManager.ISecret;
     readonly secretName?: string;
-    readonly asset: s3Assets.Asset;
+    readonly asset?: s3Assets.Asset;
+    readonly path?: string;
     readonly kmsKey: kms.IKey;
     readonly mappings: SopsSecretsManagerMappings;
     readonly fileType?: SopsSecretsManagerFileType;
@@ -70,20 +71,22 @@ class SopsSecretsManagerProvider extends cdk.Construct {
 
 export class SopsSecretsManager extends cdk.Construct {
     public readonly secret: secretsManager.ISecret;
+    public readonly asset: s3Assets.Asset;
 
     constructor(scope: cdk.Construct, id: string, props: SopsSecretsManagerProps) {
         super(scope, id);
 
         this.secret = this.getSecret(props.secret, props.secretName);
+        this.asset = this.getAsset(props.asset, props.path);
 
         const resource = new cfn.CustomResource(this, 'Resource', {
             provider: SopsSecretsManagerProvider.getOrCreate(this),
             resourceType: 'Custom::SopsSecretsManager',
             properties: {
                 SecretArn: this.secret.secretArn,
-                S3Bucket: props.asset.s3BucketName,
-                S3Path: props.asset.s3ObjectKey,
-                SourceHash: props.asset.sourceHash,
+                S3Bucket: this.asset.s3BucketName,
+                S3Path: this.asset.s3ObjectKey,
+                SourceHash: this.asset.sourceHash,
                 KMSKeyArn: props.kmsKey.keyArn,
                 Mappings: JSON.stringify(props.mappings),
                 FileType: props.fileType,
@@ -107,5 +110,23 @@ export class SopsSecretsManager extends cdk.Construct {
         }
 
         throw new Error('Must set one of secret or secretName');
+    }
+
+    public getAsset(asset?: s3Assets.Asset, secretFilePath?: string) {
+        if (asset && secretFilePath) {
+            throw new Error('Cannot set both asset and path');
+        }
+
+        if (asset) {
+            return asset;
+        }
+
+        if (secretFilePath) {
+            return new s3Assets.Asset(this, 'SopsAsset', {
+                path: secretFilePath,
+            });
+        }
+
+        throw new Error('Must set one of asset or path');
     }
 }
