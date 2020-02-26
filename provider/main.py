@@ -1,5 +1,4 @@
 import boto3
-import pprint
 import os
 import subprocess
 import json
@@ -12,7 +11,6 @@ def sops_decode(data, kms_key, data_format):
     return json.loads(output.stdout)
 
 def on_event(event, context):
-    pprint.pprint(event)
     request_type = event['RequestType']
     if request_type == 'Create': return on_create(event)
     if request_type == 'Update': return on_update(event)
