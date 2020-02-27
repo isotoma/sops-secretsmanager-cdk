@@ -16,7 +16,7 @@ workflows:
   version: 2
   publish:
     jobs:
-      - deploy:
+      - publish:
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
