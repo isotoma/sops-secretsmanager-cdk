@@ -18,6 +18,8 @@ jobs:
 
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/repo/.npmrc
 
+      - run: cat ~/repo/.npmrc
+
       - run: cd ./build && npm publish
 
 workflows:
