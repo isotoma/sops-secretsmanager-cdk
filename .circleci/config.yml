@@ -16,6 +16,8 @@ jobs:
 
       - run: cd ./build && ls -al
 
+      - run: ls -al
+
 workflows:
   version: 2
   publish:
