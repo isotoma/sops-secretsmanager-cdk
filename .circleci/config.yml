@@ -16,7 +16,9 @@ jobs:
 
       - run: cd ./build && ls -al
 
-      - run: ls -al
+      - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/repo/.npmrc
+
+      - run: cd ./build && npm publish
 
 workflows:
   version: 2
