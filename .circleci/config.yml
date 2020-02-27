@@ -20,7 +20,7 @@ jobs:
 
       - run: cp README.md ./build/README.md
 
-      - run: cd ./build && ls -al
+      - run: cd ./build && ls -alR
 
       - persist_to_workspace:
           root: ~/repo
