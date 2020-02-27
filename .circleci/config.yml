@@ -1,0 +1,29 @@
+version: 2
+
+defaults:
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:8.9.1
+
+
+jobs:
+  publish:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run: npm install
+
+      - run: ls -al
+
+workflows:
+  version: 2
+  publish:
+    jobs:
+      - deploy:
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+/
+            branches:
+              only: ci
+              # ignore: /.*/

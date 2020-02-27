@@ -22,6 +22,15 @@
         "@aws-cdk/aws-cloudformation": "^1.21.1"
     },
     "devDependencies": {
-        "auto-changelog": "^1.16.2"
+        "auto-changelog": "^1.16.2",
+        "@aws-cdk/aws-lambda": "^1.21.1",
+        "@aws-cdk/aws-iam": "^1.21.1",
+        "@aws-cdk/aws-s3": "^1.21.1",
+        "@aws-cdk/aws-s3-assets": "^1.21.1",
+        "@aws-cdk/aws-kms": "^1.21.1",
+        "@aws-cdk/aws-secretsmanager": "^1.21.1",
+        "@aws-cdk/core": "^1.21.1",
+        "@aws-cdk/custom-resources": "^1.21.1",
+        "@aws-cdk/aws-cloudformation": "^1.21.1"
     }
 }
