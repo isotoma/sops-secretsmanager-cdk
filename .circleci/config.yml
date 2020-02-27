@@ -24,7 +24,7 @@ jobs:
 
       - run: cat ~/repo/.npmrc
 
-      - run: cd ./build && npm publish
+      - run: cd ./build && npm --userconfig="../.npmrc" publish
 
 workflows:
   version: 2
