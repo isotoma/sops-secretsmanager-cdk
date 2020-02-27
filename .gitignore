@@ -5,6 +5,9 @@
 # No sops binary
 provider/sops
 
+# No build
+build/
+
 # No package-lock.json
 package-lock.json
 
