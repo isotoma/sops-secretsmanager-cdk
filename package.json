@@ -19,7 +19,8 @@
         "@aws-cdk/aws-secretsmanager": "^1.21.1",
         "@aws-cdk/core": "^1.21.1",
         "@aws-cdk/custom-resources": "^1.21.1",
-        "@aws-cdk/aws-cloudformation": "^1.21.1"
+        "@aws-cdk/aws-cloudformation": "^1.21.1",
+        "typescript": ">=3.0.0"
     },
     "devDependencies": {
         "auto-changelog": "^1.16.2",
@@ -31,6 +32,7 @@
         "@aws-cdk/aws-secretsmanager": "^1.21.1",
         "@aws-cdk/core": "^1.21.1",
         "@aws-cdk/custom-resources": "^1.21.1",
-        "@aws-cdk/aws-cloudformation": "^1.21.1"
+        "@aws-cdk/aws-cloudformation": "^1.21.1",
+        "typescript": ">=3.0.0"
     }
 }
