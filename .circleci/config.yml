@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  publish:
+  build:
     working_directory: ~/repo
     docker:
       - image: circleci/node:12
@@ -20,6 +20,18 @@ jobs:
 
       - run: cd ./build && ls -al
 
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+  publish:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:12
+    steps:
+      - attach_workspace:
+          at: ~/repo
+
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/repo/.npmrc
 
       - run: cd ./build && npm --userconfig="../.npmrc" publish
@@ -28,9 +40,13 @@ workflows:
   version: 2
   publish:
     jobs:
+      - build
       - publish:
+          requires:
+            - build
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
             branches:
-              ignore: /.*/
+              # ignore: /.*/
+              only: ci
