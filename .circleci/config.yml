@@ -10,7 +10,11 @@ jobs:
 
       - run: npm install
 
-      - run: ls -al
+      - run: npm run compile
+
+      - run: cp package.json ./build/package.json
+
+      - run: cd ./build && ls -al
 
 workflows:
   version: 2
