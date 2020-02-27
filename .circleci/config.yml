@@ -22,8 +22,6 @@ jobs:
 
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/repo/.npmrc
 
-      - run: cat ~/repo/.npmrc
-
       - run: cd ./build && npm --userconfig="../.npmrc" publish
 
 workflows:
@@ -35,5 +33,4 @@ workflows:
             tags:
               only: /\d+\.\d+\.\d+/
             branches:
-              only: ci
-              # ignore: /.*/
+              ignore: /.*/
