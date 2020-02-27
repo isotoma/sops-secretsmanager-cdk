@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.2.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.1.0...1.2.0)
+
+> 27 February 2020
+
+- CI and fixes for npm publishing [`#2`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/2)
+
 #### [1.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.0.0...1.1.0)
 
 > 26 February 2020
