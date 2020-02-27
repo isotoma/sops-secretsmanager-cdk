@@ -42,7 +42,10 @@ workflows:
   version: 2
   publish:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+/
       - publish:
           requires:
             - build
