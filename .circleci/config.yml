@@ -18,6 +18,8 @@ jobs:
 
       - run: cp package.json ./build/package.json
 
+      - run: cp README.md ./build/README.md
+
       - run: cd ./build && ls -al
 
       - persist_to_workspace:
