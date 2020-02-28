@@ -1,12 +1,12 @@
-import * as path from 'path';
 import * as cfn from '@aws-cdk/aws-cloudformation';
-import * as s3Assets from '@aws-cdk/aws-s3-assets';
 import * as iam from '@aws-cdk/aws-iam';
-import * as lambda from '@aws-cdk/aws-lambda';
 import * as kms from '@aws-cdk/aws-kms';
+import * as lambda from '@aws-cdk/aws-lambda';
+import * as s3Assets from '@aws-cdk/aws-s3-assets';
 import * as secretsManager from '@aws-cdk/aws-secretsmanager';
 import * as cdk from '@aws-cdk/core';
 import * as customResource from '@aws-cdk/custom-resources';
+import * as path from 'path';
 
 export type SopsSecretsManagerEncoding = 'string' | 'json';
 
@@ -26,7 +26,7 @@ export interface SopsSecretsManagerProps {
     readonly secretName?: string;
     readonly asset?: s3Assets.Asset;
     readonly path?: string;
-    readonly kmsKey: kms.IKey;
+    readonly kmsKey?: kms.IKey;
     readonly mappings: SopsSecretsManagerMappings;
     readonly fileType?: SopsSecretsManagerFileType;
 }
@@ -87,7 +87,7 @@ export class SopsSecretsManager extends cdk.Construct {
                 S3Bucket: this.asset.s3BucketName,
                 S3Path: this.asset.s3ObjectKey,
                 SourceHash: this.asset.sourceHash,
-                KMSKeyArn: props.kmsKey.keyArn,
+                KMSKeyArn: props.kmsKey?.keyArn,
                 Mappings: JSON.stringify(props.mappings),
                 FileType: props.fileType,
             },
