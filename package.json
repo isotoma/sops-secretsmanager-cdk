@@ -1,6 +1,22 @@
 {
     "name": "sops-secretsmanager-cdk",
     "version": "1.3.0",
+    "description": "Safely load secrets from sops into secretsmanager using the CDK",
+    "license": "MIT",
+    "author": {
+        "name": "Isotoma Ltd",
+        "email": "hello@isotoma.com",
+        "url": "https://isotoma.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/isotoma/sops-secretsmanager-cdk"
+    },
+    "keywords": [
+        "cdk",
+        "sops",
+        "secretsmanager"
+    ],
     "scripts": {
         "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./provider/sops && chmod a+x ./provider/sops",
         "tsc": "tsc",
