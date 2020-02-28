@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.2.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.2.1...1.2.2)
+
+> 28 February 2020
+
+- Fix postinstall [`#4`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/4)
+
 #### [1.2.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.2.0...1.2.1)
 
 > 27 February 2020
