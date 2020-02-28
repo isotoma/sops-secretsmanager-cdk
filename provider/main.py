@@ -9,7 +9,7 @@ def sops_decode(data, data_format, kms_key=None):
     sops_binary = os.path.join(dir_path, 'sops')
     command = [sops_binary, '-d', '--input-type', data_format, '--output-type', 'json']
     if kms_key:
-        command.extend(['--kms', kms_key, ])
+        command.extend(['--kms', kms_key])
     command.append('/dev/stdin')
     output = subprocess.run(command, input=data, capture_output=True)
     return json.loads(output.stdout)
@@ -60,7 +60,7 @@ def get_mapped_values(secrets, mappings):
 def on_create(event):
     logging.info('On create')
 
-    kmsKey = event['ResourceProperties'].get('KMSKeyArn', None)
+    kmsKey = event['ResourceProperties'].get('KMSKeyArn')
     s3Bucket = event['ResourceProperties']['S3Bucket']
     s3Path = event['ResourceProperties']['S3Path']
     mappings = json.loads(event['ResourceProperties']['Mappings'])
