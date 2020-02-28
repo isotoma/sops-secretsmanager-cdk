@@ -29,3 +29,11 @@ Using the CDK's custom resource mini-framework, the sops secrets file
 is uploaded to S3 as an asset _as is_, still encoded. The custom
 resource Lambda then decodes the secrets (in memory, never on disk)
 and puts them into the SecretsManager secret.
+
+## Releasing a new version
+
+- (Almost certainly) be on latest master, with no unpublished changes
+- Run `npm version (patch|minor|major)` as appropriate
+- Run `git push` and `git push origin TAG` where `TAG` is the tag that `npm version` just created
+
+The tag triggers a CircleCI job to publish to npm.
