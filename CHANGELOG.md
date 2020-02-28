@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [1.4.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.3.0...1.4.0)
+
+> 28 February 2020
+
+- More details in package.json [`#15`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/15)
+- Ensure that a created secret is available as a concrete type [`#17`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/17)
+- Document optional kmsKey [`cef2ab4`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/cef2ab45863223523994c429a506a070f8fbb1cd)
+
 #### [1.3.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.2.2...1.3.0)
 
 > 28 February 2020
