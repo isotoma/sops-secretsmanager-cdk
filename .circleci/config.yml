@@ -40,7 +40,7 @@ jobs:
 
 workflows:
   version: 2
-  publish:
+  build-and-publish:
     jobs:
       - build:
           filters:
