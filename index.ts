@@ -22,7 +22,7 @@ export interface SopsSecretsManagerMappings {
 }
 
 export interface SopsSecretsManagerProps {
-    readonly secret?: secretsManager.ISecret;
+    readonly secret?: secretsManager.Secret | secretsManager.ISecret;
     readonly secretName?: string;
     readonly asset?: s3Assets.Asset;
     readonly path?: string;
@@ -70,7 +70,7 @@ class SopsSecretsManagerProvider extends cdk.Construct {
 }
 
 export class SopsSecretsManager extends cdk.Construct {
-    public readonly secret: secretsManager.ISecret;
+    public readonly secret: secretsManager.Secret | secretsManager.ISecret;
     public readonly asset: s3Assets.Asset;
 
     constructor(scope: cdk.Construct, id: string, props: SopsSecretsManagerProps) {
@@ -94,7 +94,7 @@ export class SopsSecretsManager extends cdk.Construct {
         });
     }
 
-    public getSecret(secret?: secretsManager.ISecret, secretName?: string): secretsManager.ISecret {
+    public getSecret(secret?: secretsManager.Secret | secretsManager.ISecret, secretName?: string): secretsManager.Secret | secretsManager.ISecret {
         if (secret && secretName) {
             throw new Error('Cannot set both secret and secretName');
         }
