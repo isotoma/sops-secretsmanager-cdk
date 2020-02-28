@@ -6,7 +6,7 @@ Safely load secrets from sops into secretsmanager using the CDK
 ```typescript
 import { SopsSecretsManager } from 'sops-secretsmanager-cdk';
 ...
-new SopsSecretsManager(this, 'StoreSecrets', {
+const ssm = new SopsSecretsManager(this, 'StoreSecrets', {
     path: './path/to/secretsfile.yaml',
     kmsKey: myKey,  // or use kms.Key.fromKeyArn, or omit and use the key in the sops file
     secretName: 'TestSecret',  // or secret: mySecret
@@ -21,6 +21,11 @@ new SopsSecretsManager(this, 'StoreSecrets', {
         // etc
     },
 });
+
+if(ssm.secret) {
+    // secret is a Secret you can tag, for example
+}
+
 ```
 
 ## Implementation
