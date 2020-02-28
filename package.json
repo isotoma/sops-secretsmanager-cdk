@@ -4,7 +4,7 @@
     "description": "Safely load secrets from sops into secretsmanager using the CDK",
     "license": "MIT",
     "author": {
-        "name": "Isotoma Ltd",
+        "name": "Isotoma Limited",
         "email": "hello@isotoma.com",
         "url": "https://isotoma.com"
     },
