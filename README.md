@@ -8,7 +8,7 @@ import { SopsSecretsManager } from 'sops-secretsmanager-cdk';
 ...
 new SopsSecretsManager(this, 'StoreSecrets', {
     path: './path/to/secretsfile.yaml',
-    kmsKey: myKey,  // or use kms.Key.fromKeyArn
+    kmsKey: myKey,  // or use kms.Key.fromKeyArn, or omit and use the key in the sops file
     secretName: 'TestSecret',  // or secret: mySecret
     mappings: {
         nameInSecretsManager: {
