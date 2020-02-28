@@ -70,20 +70,33 @@ class SopsSecretsManagerProvider extends cdk.Construct {
 }
 
 export class SopsSecretsManager extends cdk.Construct {
-    public readonly secret: secretsManager.Secret | secretsManager.ISecret;
+    public readonly secret: secretsManager.Secret | undefined;
+    public readonly secretArn: string;
     public readonly asset: s3Assets.Asset;
 
     constructor(scope: cdk.Construct, id: string, props: SopsSecretsManagerProps) {
         super(scope, id);
 
-        this.secret = this.getSecret(props.secret, props.secretName);
+        if(props.secret && props.secretName) {
+            throw new Error("Cannot set both secret and secretName")
+        } else if(props.secret) {
+            this.secretArn = props.secret.secretArn;
+            this.secret = undefined;
+        } else if(props.secretName) {
+            this.secret = new secretsManager.Secret(this, 'Secret', {
+                secretName: props.secretName,
+            })
+            this.secretArn = this.secret.secretArn
+        } else {
+            throw new Error('Must set one of secret or secretName');
+        }
         this.asset = this.getAsset(props.asset, props.path);
 
         const resource = new cfn.CustomResource(this, 'Resource', {
             provider: SopsSecretsManagerProvider.getOrCreate(this),
             resourceType: 'Custom::SopsSecretsManager',
             properties: {
-                SecretArn: this.secret.secretArn,
+                SecretArn: this.secretArn,
                 S3Bucket: this.asset.s3BucketName,
                 S3Path: this.asset.s3ObjectKey,
                 SourceHash: this.asset.sourceHash,
@@ -92,24 +105,6 @@ export class SopsSecretsManager extends cdk.Construct {
                 FileType: props.fileType,
             },
         });
-    }
-
-    public getSecret(secret?: secretsManager.Secret | secretsManager.ISecret, secretName?: string): secretsManager.Secret | secretsManager.ISecret {
-        if (secret && secretName) {
-            throw new Error('Cannot set both secret and secretName');
-        }
-
-        if (secret) {
-            return secret;
-        }
-
-        if (secretName) {
-            return new secretsManager.Secret(this, 'Secret', {
-                secretName,
-            });
-        }
-
-        throw new Error('Must set one of secret or secretName');
     }
 
     public getAsset(asset?: s3Assets.Asset, secretFilePath?: string) {
