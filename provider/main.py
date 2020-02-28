@@ -4,10 +4,14 @@ import subprocess
 import json
 import logging
 
-def sops_decode(data, kms_key, data_format):
+def sops_decode(data, data_format, kms_key=None):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     sops_binary = os.path.join(dir_path, 'sops')
-    output = subprocess.run([sops_binary, '--kms', kms_key, '-d', '--input-type', data_format, '--output-type', 'json', '/dev/stdin'], input=data, capture_output=True)
+    command = [sops_binary, '-d', '--input-type', data_format, '--output-type', 'json']
+    if kms_key:
+        command.extend(['--kms', kms_key])
+    command.append('/dev/stdin')
+    output = subprocess.run(command, input=data, capture_output=True)
     return json.loads(output.stdout)
 
 def on_event(event, context):
@@ -56,7 +60,7 @@ def get_mapped_values(secrets, mappings):
 def on_create(event):
     logging.info('On create')
 
-    kmsKey = event['ResourceProperties']['KMSKeyArn']
+    kmsKey = event['ResourceProperties'].get('KMSKeyArn')
     s3Bucket = event['ResourceProperties']['S3Bucket']
     s3Path = event['ResourceProperties']['S3Path']
     mappings = json.loads(event['ResourceProperties']['Mappings'])
@@ -74,7 +78,7 @@ def on_create(event):
         data_type = fileType
         if not data_type:
             data_type = s3Path.rsplit('.', 1)[-1]
-        secrets = sops_decode(raw_content, kmsKey, data_type)
+        secrets = sops_decode(raw_content, data_type, kmsKey)
 
         secret_string_json = {name: value for name, value in get_mapped_values(secrets, mappings)}
         secretsManager = boto3.client('secretsmanager')
