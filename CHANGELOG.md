@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [1.3.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.2.2...1.3.0)
+
+> 28 February 2020
+
+- Make kmsKey optional [`#14`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/14)
+- Rename CircleCI workflow [`#12`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/12)
+- Release documentation [`#11`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/11)
+
 #### [1.2.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.2.1...1.2.2)
 
 > 28 February 2020
