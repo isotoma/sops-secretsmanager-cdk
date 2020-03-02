@@ -10,8 +10,8 @@
         "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./sops && chmod a+x ./sops",
         "tsc": "tsc",
         "clean": "rm -rf build/",
-        "compile": "npm run clean && npm run -- tsc --outDir build/ && npm run get-sops && cp -R ./sops ./build/",
-        "quick-compile": "npm run -- tsc --outDir build/ && ([[ -f ./sops ]] || npm run get-sops) && cp ./sops ./build/",
+        "compile": "npm run clean && npm run -- tsc --outDir build/ --declaration false && npm run get-sops && cp -R ./sops ./build/",
+        "quick-compile": "npm run -- tsc --outDir build/ --declaration false && ([[ -f ./sops ]] || npm run get-sops) && cp ./sops ./build/",
         "test": "jest",
         "lint": "eslint 'index.ts' --quiet --fix",
         "lint-check": "eslint 'index.ts' --max-warnings 0"
