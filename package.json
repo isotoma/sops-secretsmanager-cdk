@@ -18,6 +18,7 @@
         "secretsmanager"
     ],
     "scripts": {
+        "test": "jest",
         "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./provider/sops && chmod a+x ./provider/sops",
         "tsc": "tsc",
         "clean": "rm -rf build/",
@@ -40,6 +41,7 @@
         "typescript": ">=3.0.0"
     },
     "devDependencies": {
+        "@aws-cdk/assert": "1.26.0",
         "auto-changelog": "^1.16.2",
         "@aws-cdk/aws-lambda": "^1.21.1",
         "@aws-cdk/aws-iam": "^1.21.1",
@@ -50,6 +52,9 @@
         "@aws-cdk/core": "^1.21.1",
         "@aws-cdk/custom-resources": "^1.21.1",
         "@aws-cdk/aws-cloudformation": "^1.21.1",
-        "typescript": ">=3.0.0"
+        "typescript": ">=3.0.0",
+        "jest": "24.9.0",
+        "ts-jest": "24.1.0",
+        "@types/jest": "~24.0.22"
     }
 }
