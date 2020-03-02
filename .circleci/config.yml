@@ -1,6 +1,21 @@
 version: 2
 
 jobs:
+  test-construct:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+
+      - run: npm install
+
+      - run: npm run test
+
   build:
     working_directory: ~/repo
     docker:
@@ -42,12 +57,17 @@ workflows:
   version: 2
   build-and-publish:
     jobs:
+      - test-construct:
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+/
       - build:
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
       - publish:
           requires:
+            - test-construct
             - build
           filters:
             tags:
