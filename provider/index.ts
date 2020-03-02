@@ -4,9 +4,11 @@ import * as childProcess from 'child_process';
 import { Writable } from 'stream';
 import { TextDecoder } from 'util';
 
+type MappingEncoding = 'string' | 'json';
+
 interface Mapping {
     path: Array<string>;
-    encoding: string;
+    encoding?: MappingEncoding;
 }
 
 interface Mappings {
@@ -96,31 +98,53 @@ const execPromise = async (args: Array<string>, input: string): Promise<string> 
     });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<any> => {
+const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<unknown> => {
     const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
     const result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
     const parsed = JSON.parse(result);
     return Promise.resolve(parsed);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const resolveMappingPath = (data: any, path: Array<string>): string | undefined => {
+interface JsonData {
+    [key: string]: unknown;
+}
+
+const resolveMappingPath = (data: JsonData, path: Array<string>, encoding: MappingEncoding): string | undefined => {
+    if (typeof data !== 'object') {
+        return undefined;
+    }
+
     if (path.length > 1) {
         const [head, ...rest] = path;
-        return resolveMappingPath(data[head], rest);
+        return resolveMappingPath(data[head] as JsonData, rest, encoding);
     }
-    return data[path[0]];
+
+    const value = data[path[0]];
+
+    if (typeof value === 'undefined') {
+        return undefined;
+    }
+
+    switch (encoding) {
+        case 'string' as MappingEncoding:
+            if (typeof value === 'object') {
+                return undefined;
+            }
+            return String(value);
+        case 'json' as MappingEncoding:
+            return JSON.stringify(value);
+    }
+
+    throw new Error(`Unknown encoding ${encoding}`);
 };
 
 type KeyAndMapping = [string, Mapping];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const resolveMappings = (data: any, mappings: Mappings): MappedValues => {
+const resolveMappings = (data: unknown, mappings: Mappings): MappedValues => {
     const mapped = {} as MappedValues;
     Object.entries(mappings).forEach((keyAndMapping: KeyAndMapping) => {
         const [key, mapping] = keyAndMapping;
-        const value = resolveMappingPath(data, mapping.path);
+        const value = resolveMappingPath(data as JsonData, mapping.path, mapping.encoding || ('string' as MappingEncoding));
         if (typeof value !== 'undefined') {
             mapped[key] = value;
         }
