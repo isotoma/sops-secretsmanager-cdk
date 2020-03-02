@@ -77,22 +77,22 @@ export class SopsSecretsManager extends cdk.Construct {
     constructor(scope: cdk.Construct, id: string, props: SopsSecretsManagerProps) {
         super(scope, id);
 
-        if(props.secret && props.secretName) {
-            throw new Error("Cannot set both secret and secretName")
-        } else if(props.secret) {
+        if (props.secret && props.secretName) {
+            throw new Error('Cannot set both secret and secretName');
+        } else if (props.secret) {
             this.secretArn = props.secret.secretArn;
             this.secret = undefined;
-        } else if(props.secretName) {
+        } else if (props.secretName) {
             this.secret = new secretsManager.Secret(this, 'Secret', {
                 secretName: props.secretName,
-            })
-            this.secretArn = this.secret.secretArn
+            });
+            this.secretArn = this.secret.secretArn;
         } else {
             throw new Error('Must set one of secret or secretName');
         }
         this.asset = this.getAsset(props.asset, props.path);
 
-        const resource = new cfn.CustomResource(this, 'Resource', {
+        new cfn.CustomResource(this, 'Resource', {
             provider: SopsSecretsManagerProvider.getOrCreate(this),
             resourceType: 'Custom::SopsSecretsManager',
             properties: {
@@ -107,7 +107,7 @@ export class SopsSecretsManager extends cdk.Construct {
         });
     }
 
-    public getAsset(asset?: s3Assets.Asset, secretFilePath?: string) {
+    public getAsset(asset?: s3Assets.Asset, secretFilePath?: string): s3Assets.Asset {
         if (asset && secretFilePath) {
             throw new Error('Cannot set both asset and path');
         }

@@ -23,7 +23,9 @@
         "tsc": "tsc",
         "clean": "rm -rf build/",
         "compile": "npm run clean && npm run -- tsc --outDir build/ && npm run get-sops && cp -R ./provider ./build/provider",
-        "version": "auto-changelog --template ./changelog_template.hbs -p && git add CHANGELOG.md"
+        "version": "auto-changelog --template ./changelog_template.hbs -p && git add CHANGELOG.md",
+        "lint": "eslint 'index.ts' 'test/**/*.ts' --quiet --fix",
+        "lint-check": "eslint 'index.ts' 'test/**/*.ts' --max-warnings 0"
     },
     "dependencies": {
         "@types/node": ">=10"
@@ -55,6 +57,12 @@
         "typescript": ">=3.0.0",
         "jest": "24.9.0",
         "ts-jest": "24.1.0",
-        "@types/jest": "~24.0.22"
+        "eslint": "6.8.0",
+        "eslint-config-prettier": "6.9.0",
+        "eslint-plugin-prettier": "3.1.2",
+        "prettier": "1.19.1",
+        "@types/jest": "~24.0.22",
+        "@typescript-eslint/eslint-plugin": "2.16.0",
+        "@typescript-eslint/parser": "2.16.0"
     }
 }
