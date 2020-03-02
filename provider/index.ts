@@ -130,7 +130,6 @@ const resolveMappings = (data: any, mappings: Mappings): MappedValues => {
 
 const setValuesInSecret = async (values: MappedValues, secretArn: string): Promise<void> => {
     const secretsManager = new aws.SecretsManager();
-    console.log(secretArn);
     return secretsManager
         .putSecretValue({
             SecretId: secretArn,
