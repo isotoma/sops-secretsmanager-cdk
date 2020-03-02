@@ -29,9 +29,9 @@ jobs:
           name: update-npm
           command: 'sudo npm install -g npm@latest'
 
-      - npm install
+      - run: npm install
 
-      - run run test
+      - run: npm run test
 
   build:
     working_directory: ~/repo
