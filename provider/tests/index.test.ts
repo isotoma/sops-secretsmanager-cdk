@@ -83,7 +83,7 @@ describe('onCreate', () => {
                     Body: Buffer.from('a: 1234'),
                 }),
         }));
-        const mockProc = setMockSpawn({ stdoutData: '{"a": "abc"}' });
+        const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
         mockSecretsManagerPutSecretValue.mockImplementation(() => ({
             promise: (): Promise<any> => Promise.resolve({}),
         }));
@@ -95,7 +95,11 @@ describe('onCreate', () => {
                     KMSKeyArn: undefined,
                     S3Bucket: 'mys3bucket',
                     S3Path: 'mys3path.yaml',
-                    Mappings: '{"key": {"path": ["a"]}}',
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                        },
+                    }),
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
                     FileType: undefined,
