@@ -78,9 +78,8 @@ workflows:
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
+      - test-provider
       - build:
-          requires:
-            - test-provider
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
