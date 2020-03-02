@@ -31,6 +31,23 @@ beforeEach(() => {
     }));
 });
 
+class MockChildProcess extends events.EventEmitter {
+    readonly stdout: events.EventEmitter;
+    readonly stderr: events.EventEmitter;
+    readonly stdin: Writable;
+
+    constructor() {
+        super();
+
+        this.stdout = new events.EventEmitter();
+        this.stderr = new events.EventEmitter();
+
+        this.stdin = {
+            end: jest.fn(),
+        } as unknown as Writable;
+    }
+}
+
 describe('onCreate', () => {
     test('simple', async () => {
         mockS3GetObject.mockImplementation(() => ({
@@ -39,30 +56,14 @@ describe('onCreate', () => {
             }),
         }));
         (childProcess.spawn as any).mockImplementation((file: string, args: Array<string>, options: object) => {
-
-            class MockChildProcess extends events.EventEmitter {
-                readonly stdout: events.EventEmitter;
-                readonly stderr: events.EventEmitter;
-                readonly stdin: Writable;
-
-                constructor() {
-                    super();
-
-                    this.stdout = new events.EventEmitter();
-                    this.stderr = new events.EventEmitter();
-
-                    this.stdin = {
-                        end: jest.fn(),
-                    } as unknown as Writable;
-                }
-            }
-
             const emitter = new MockChildProcess();
 
             setTimeout(() => {
                 emitter.stdout.emit('data', new TextEncoder().encode('{"a": "abc"}'));
+            }, 10);
+            setTimeout(() => {
                 emitter.emit('close', 0);
-            }, 1000);
+            }, 20);
 
             return emitter as childProcess.ChildProcess;
         });
