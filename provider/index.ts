@@ -1,7 +1,7 @@
 import * as aws from 'aws-sdk';
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { Writable } from "stream";
+import { Writable } from 'stream';
 
 interface Mapping {
     path: Array<string>;
@@ -14,7 +14,7 @@ interface Mappings {
 
 type MappedValues = {
     [name: string]: string;
-}
+};
 
 interface ResourceProperties {
     KMSKeyArn: string | undefined;
@@ -44,12 +44,11 @@ interface DeleteEvent extends BaseEvent {
     PhysicalResourceId: string;
 }
 
-interface ResponseData {
-}
+// interface ResponseData {}
 
 interface Response {
     PhysicalResourceId: string;
-    Data: ResponseData;
+    Data: {};
 }
 
 type Event = CreateEvent | UpdateEvent | DeleteEvent;
@@ -74,21 +73,17 @@ const execPromise = async (file: string, args: Array<string>, input: string): Pr
         });
         (proc.stdin as Writable).end(input);
     });
-}
+};
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<any> => {
-    const sopsArgs = [
-        '-d',
-        '--input-type', dataType,
-        '--output-type', 'json',
-        ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []),
-        '/dev/stdin',
-    ];
+    const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
     const result = await execPromise(path.join(__dirname, 'sops'), sopsArgs, fileContent);
     const parsed = JSON.parse(result);
     return Promise.resolve(parsed);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const resolveMappingPath = (data: any, path: Array<string>): string | undefined => {
     if (path.length > 1) {
         const [head, ...rest] = path;
@@ -99,8 +94,9 @@ const resolveMappingPath = (data: any, path: Array<string>): string | undefined 
 
 type KeyAndMapping = [string, Mapping];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const resolveMappings = (data: any, mappings: Mappings): MappedValues => {
-    let mapped = {} as MappedValues;
+    const mapped = {} as MappedValues;
     Object.entries(mappings).forEach((keyAndMapping: KeyAndMapping) => {
         const [key, mapping] = keyAndMapping;
         const value = resolveMappingPath(data, mapping.path);
@@ -113,13 +109,15 @@ const resolveMappings = (data: any, mappings: Mappings): MappedValues => {
 
 const setValuesInSecret = async (values: MappedValues, secretArn: string): Promise<void> => {
     const secretsManager = new aws.SecretsManager();
-    return secretsManager.putSecretValue({
-        SecretId: secretArn,
-        SecretString: JSON.stringify(values),
-    })
+    return secretsManager
+        .putSecretValue({
+            SecretId: secretArn,
+            SecretString: JSON.stringify(values),
+        })
         .promise()
-        .then(() => {});
-        
+        .then(() => {
+            // do nothing
+        });
 };
 
 const handleCreate = async (event: CreateEvent): Promise<Response> => {
@@ -128,15 +126,17 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
     const s3Path = event.ResourceProperties.S3Path;
     const mappings = JSON.parse(event.ResourceProperties.Mappings) as Mappings;
     const secretArn = event.ResourceProperties.SecretArn;
-    const sourceHash = event.ResourceProperties.SourceHash;
+    // const sourceHash = event.ResourceProperties.SourceHash;
     const fileType = event.ResourceProperties.FileType;
 
     const s3 = new aws.S3();
 
-    const obj = await s3.getObject({
-        Bucket: s3BucketName,
-        Key: s3Path,
-    }).promise();
+    const obj = await s3
+        .getObject({
+            Bucket: s3BucketName,
+            Key: s3Path,
+        })
+        .promise();
 
     const data = await sopsDecode((obj.Body as Buffer).toString('utf-8'), determineFileType(s3Path, fileType), kmsKeyArn);
     const mappedValues = resolveMappings(data, mappings);
@@ -150,7 +150,7 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
 
 const handleUpdate = async (event: UpdateEvent): Promise<Response> => {
     const physicalResourceId = event.PhysicalResourceId;
-    const response = await handleCreate(event as CreateEvent)
+    const response = await handleCreate(event as CreateEvent);
     return Promise.resolve({
         ...response,
         PhysicalResourceId: physicalResourceId,
