@@ -1,4 +1,3 @@
-import * as aws from 'aws-sdk';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import * as events from 'events';
@@ -19,18 +18,22 @@ jest.mock('aws-sdk', () => ({
 }));
 jest.mock('child_process');
 
+interface MockS3GetObjectResponse {
+    Body: Buffer;
+}
+
 beforeEach(() => {
     mockS3GetObject.mockReset();
     mockSecretsManagerPutSecretValue.mockReset();
 
     mockS3GetObject.mockImplementation(() => ({
-        promise: (): Promise<any> =>
+        promise: (): Promise<MockS3GetObjectResponse> =>
             Promise.resolve({
                 Body: Buffer.from(''),
             }),
     }));
     mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-        promise: (): Promise<any> => Promise.resolve({}),
+        promise: (): Promise<object> => Promise.resolve({}),
     }));
 });
 
@@ -60,10 +63,16 @@ interface SetMockSpawnProps {
 const setMockSpawn = (props: SetMockSpawnProps): MockChildProcess => {
     const { stdoutData = null, stderrData = null, code = 0 } = props;
     const emitter = new MockChildProcess();
-    (childProcess.spawn as any).mockImplementationOnce((file: string, args: Array<string>, options: object) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (childProcess.spawn as jest.Mock).mockImplementationOnce((file: string, args: Array<string>, options: object) => {
         if (stdoutData) {
             setTimeout(() => {
                 emitter.stdout.emit('data', new TextEncoder().encode(stdoutData));
+            }, 10);
+        }
+        if (stderrData) {
+            setTimeout(() => {
+                emitter.stderr.emit('data', new TextEncoder().encode(stderrData));
             }, 10);
         }
         setTimeout(() => {
@@ -78,14 +87,14 @@ const setMockSpawn = (props: SetMockSpawnProps): MockChildProcess => {
 describe('onCreate', () => {
     test('simple', async () => {
         mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<any> =>
+            promise: (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
                     Body: Buffer.from('a: 1234'),
                 }),
         }));
         const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
         mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<any> => Promise.resolve({}),
+            promise: (): Promise<object> => Promise.resolve({}),
         }));
 
         expect(
@@ -110,7 +119,7 @@ describe('onCreate', () => {
             PhysicalResourceId: 'secretdata_mysecretarn',
         });
 
-        const putSecretValueCalls = expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
             SecretId: 'mysecretarn',
             SecretString: expect.any(String),
         });
@@ -124,7 +133,7 @@ describe('onCreate', () => {
             Key: 'mys3path.yaml',
         });
 
-        expect(childProcess.spawn as any).toBeCalledWith(
+        expect(childProcess.spawn as jest.Mock).toBeCalledWith(
             'sh',
             ['-c', 'cat', '-', '|', path.normalize(path.join(__dirname, '../sops')), '-d', '--input-type', 'yaml', '--output-type', 'json', '/dev/stdin'],
             {
@@ -136,7 +145,7 @@ describe('onCreate', () => {
     });
 
     test('mapping with encoding', async () => {
-        const mockProc = setMockSpawn({
+        setMockSpawn({
             stdoutData: JSON.stringify({
                 a: {
                     b: 'c',
@@ -162,7 +171,7 @@ describe('onCreate', () => {
             },
         });
 
-        const putSecretValueCalls = expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
             SecretId: 'mysecretarn',
             SecretString: expect.any(String),
         });
