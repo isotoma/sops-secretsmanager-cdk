@@ -2,6 +2,7 @@ import * as aws from 'aws-sdk';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Writable } from 'stream';
+import { TextDecoder } from 'util';
 
 interface Mapping {
     path: Array<string>;
@@ -62,23 +63,43 @@ const determineFileType = (s3Path: string, fileType: string | undefined): string
     return parts.pop() as string;
 };
 
-const execPromise = async (file: string, args: Array<string>, input: string): Promise<string> => {
+const bytesToString = (byteArray: Uint8Array): string => {
+    return new TextDecoder().decode(byteArray);
+};
+
+const execPromise = async (args: Array<string>, input: string): Promise<string> => {
     return new Promise((res: (result: string) => void, rej: (error: childProcess.ExecException) => void): void => {
-        const proc = childProcess.execFile(file, args, (error, stdout) => {
-            if (error) {
-                rej(error);
+        const proc = childProcess.spawn('sh', ['-c', 'cat', '-', '|', ...args], { stdio: 'pipe', shell: true });
+        (proc.stdin as Writable).end(input);
+
+        let stdout = '';
+        let stderr = '';
+
+        proc.stdout.on('data', (data: Uint8Array) => {
+            stdout += bytesToString(data);
+        });
+
+        proc.stderr.on('data', (data: Uint8Array) => {
+            stderr += bytesToString(data);
+        });
+
+        proc.on('close', (code: number) => {
+            if (code > 0) {
+                rej({
+                    name: `Exited with code ${code}`,
+                    message: stderr,
+                });
             } else {
                 res(stdout);
             }
         });
-        (proc.stdin as Writable).end(input);
     });
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<any> => {
     const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
-    const result = await execPromise(path.join(__dirname, 'sops'), sopsArgs, fileContent);
+    const result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
     const parsed = JSON.parse(result);
     return Promise.resolve(parsed);
 };
@@ -109,6 +130,7 @@ const resolveMappings = (data: any, mappings: Mappings): MappedValues => {
 
 const setValuesInSecret = async (values: MappedValues, secretArn: string): Promise<void> => {
     const secretsManager = new aws.SecretsManager();
+    console.log(secretArn);
     return secretsManager
         .putSecretValue({
             SecretId: secretArn,

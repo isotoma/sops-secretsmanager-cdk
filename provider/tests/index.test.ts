@@ -1,7 +1,10 @@
 import * as aws from 'aws-sdk';
 import * as path from 'path';
 import * as childProcess from 'child_process';
+import * as  events from 'events';
 import { onEvent } from '../';
+import { TextEncoder } from 'util';
+import { Writable } from 'stream';
 
 const mockS3GetObject = jest.fn();
 const mockSecretsManagerPutSecretValue = jest.fn();
@@ -35,9 +38,33 @@ describe('onCreate', () => {
                 Body: Buffer.from('a: 1234'),
             }),
         }));
-        console.log(typeof childProcess.execFile);
-        (childProcess.execFile as any).mockImplementation((file: string, args: object, callback: any) => {
-            callback(null, '{"a": "abc"}');
+        (childProcess.spawn as any).mockImplementation((file: string, args: Array<string>, options: object) => {
+
+            class MockChildProcess extends events.EventEmitter {
+                readonly stdout: events.EventEmitter;
+                readonly stderr: events.EventEmitter;
+                readonly stdin: Writable;
+
+                constructor() {
+                    super();
+
+                    this.stdout = new events.EventEmitter();
+                    this.stderr = new events.EventEmitter();
+
+                    this.stdin = {
+                        end: jest.fn(),
+                    } as unknown as Writable;
+                }
+            }
+
+            const emitter = new MockChildProcess();
+
+            setTimeout(() => {
+                emitter.stdout.emit('data', new TextEncoder().encode('{"a": "abc"}'));
+                emitter.emit('close', 0);
+            }, 1000);
+
+            return emitter as childProcess.ChildProcess;
         });
         mockSecretsManagerPutSecretValue.mockImplementation(() => ({
             promise: (): Promise<any> => Promise.resolve({}),
@@ -75,15 +102,24 @@ describe('onCreate', () => {
             Key: 'mys3path.yaml',
         });
 
-        expect(childProcess.execFile as any).toBeCalledWith(
-            path.normalize(path.join(__dirname, '../sops')),
+        expect(childProcess.spawn as any).toBeCalledWith(
+            'sh',
             [
+                '-c',
+                'cat',
+                '-',
+                '|',
+                path.normalize(path.join(__dirname, '../sops')),
                 '-d',
                 '--input-type', 'yaml',
                 '--output-type', 'json',
                 '/dev/stdin',
             ],
-            expect.any(Function));
+            {
+                shell: true,
+                stdio: 'pipe',
+            }
+        );
     });
 });
 
