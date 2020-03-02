@@ -78,7 +78,10 @@ workflows:
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
-      - test-provider
+      - test-provider:
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+/
       - build:
           filters:
             tags:
@@ -86,6 +89,7 @@ workflows:
       - publish:
           requires:
             - test-construct
+            - test-provider
             - build
           filters:
             tags:
