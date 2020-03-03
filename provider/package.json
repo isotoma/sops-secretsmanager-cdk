@@ -1,0 +1,35 @@
+{
+    "name": "sops-secretsmanager-cdk-provider",
+    "license": "MIT",
+    "author": {
+        "name": "Isotoma Limited",
+        "email": "hello@isotoma.com",
+        "url": "https://isotoma.com"
+    },
+    "scripts": {
+        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./sops && chmod a+x ./sops",
+        "tsc": "tsc",
+        "clean": "rm -rf build/",
+        "compile": "npm run clean && npm run -- tsc --outDir build/ --declaration false && npm run get-sops && cp -R ./sops ./build/",
+        "quick-compile": "npm run -- tsc --outDir build/ --declaration false && ([[ -f ./sops ]] || npm run get-sops) && cp ./sops ./build/",
+        "test": "jest",
+        "lint": "eslint 'index.ts' 'tests/**/*.ts' --quiet --fix",
+        "lint-check": "eslint 'index.ts' 'tests/**/*.ts' --max-warnings 0"
+    },
+    "dependencies": {
+        "@types/node": ">=10"
+    },
+    "devDependencies": {
+        "@types/jest": "~24.0.22",
+        "@typescript-eslint/eslint-plugin": "2.16.0",
+        "@typescript-eslint/parser": "2.16.0",
+        "aws-sdk": ">=2",
+        "eslint": "6.8.0",
+        "eslint-config-prettier": "6.9.0",
+        "eslint-plugin-prettier": "3.1.2",
+        "jest": "~24.9.0",
+        "prettier": "1.19.1",
+        "ts-jest": "24.1.0",
+        "typescript": ">=3.0.0"
+    }
+}

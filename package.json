@@ -19,10 +19,9 @@
     ],
     "scripts": {
         "test": "jest",
-        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./provider/sops && chmod a+x ./provider/sops",
         "tsc": "tsc",
         "clean": "rm -rf build/",
-        "compile": "npm run clean && npm run -- tsc --outDir build/ && npm run get-sops && cp -R ./provider ./build/provider",
+        "compile": "npm run clean && npm run -- tsc --outDir build/ && (cd provider && npm install && npm run compile) && cp -R ./provider/build/ ./build/provider/",
         "version": "auto-changelog --template ./changelog_template.hbs -p && git add CHANGELOG.md",
         "lint": "eslint 'index.ts' 'test/**/*.ts' --quiet --fix",
         "lint-check": "eslint 'index.ts' 'test/**/*.ts' --max-warnings 0"

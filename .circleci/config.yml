@@ -18,6 +18,23 @@ jobs:
 
       - run: npm run test
 
+  test-provider:
+    working_directory: ~/repo/provider
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout:
+          path: ~/repo
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+
+      - run: npm install
+
+      - run: npm run lint-check
+
+      - run: npm run test
+
   build:
     working_directory: ~/repo
     docker:
@@ -63,6 +80,10 @@ workflows:
           filters:
             tags:
               only: /\d+\.\d+\.\d+/
+      - test-provider:
+          filters:
+            tags:
+              only: /\d+\.\d+\.\d+/
       - build:
           filters:
             tags:
@@ -70,6 +91,7 @@ workflows:
       - publish:
           requires:
             - test-construct
+            - test-provider
             - build
           filters:
             tags:
