@@ -1,5 +1,15 @@
 ### Changelog
 
+#### [1.5.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.4.0...1.5.0)
+
+> 3 March 2020
+
+- More construct tests [`#25`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/25)
+- Keep CDK devDependencies in line [`#24`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/24)
+- Typescript provider [`#19`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/19)
+- Linting configuration [`e76a5b1`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/e76a5b110cb0d7a3d04733e7ca09ba9069ec2489)
+- Tests for CDK construct [`a8ccf77`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/a8ccf772f3aa905488850ed6eaff8126888fd95e)
+
 #### [1.4.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.3.0...1.4.0)
 
 > 28 February 2020
