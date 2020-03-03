@@ -93,6 +93,12 @@ export class SopsSecretsManager extends cdk.Construct {
         }
         this.asset = this.getAsset(props.asset, props.path);
 
+        if (props.wholeFile && props.mappings) {
+            throw new Error('Cannot set mappings and set wholeFile to true');
+        } else if (!props.wholeFile && !props.mappings) {
+            throw new Error('Must set mappings or set wholeFile to true');
+        }
+
         new cfn.CustomResource(this, 'Resource', {
             provider: SopsSecretsManagerProvider.getOrCreate(this),
             resourceType: 'Custom::SopsSecretsManager',
