@@ -32,7 +32,6 @@ test('creates a secret, and a custom resource', () => {
     );
 });
 
-
 test('uses a secret, creates a custom resource', () => {
     const stack = new Stack();
 
