@@ -19,11 +19,16 @@ type MappedValues = {
     [name: string]: string;
 };
 
+interface SopsWholeFileData {
+    data: string;
+}
+
 interface ResourceProperties {
     KMSKeyArn: string | undefined;
     S3Bucket: string;
     S3Path: string;
     Mappings: string; // json encoded Mappings;
+    WholeFile: boolean;
     SecretArn: string;
     SourceHash: string;
     FileType: string | undefined;
@@ -56,9 +61,13 @@ interface Response {
 
 type Event = CreateEvent | UpdateEvent | DeleteEvent;
 
-const determineFileType = (s3Path: string, fileType: string | undefined): string => {
+const determineFileType = (s3Path: string, fileType: string | undefined, wholeFile: boolean): string => {
     if (fileType) {
         return fileType;
+    }
+
+    if (wholeFile) {
+        return 'json';
     }
 
     const parts = s3Path.split('.') as Array<string>;
@@ -152,12 +161,12 @@ const resolveMappings = (data: unknown, mappings: Mappings): MappedValues => {
     return mapped;
 };
 
-const setValuesInSecret = async (values: MappedValues, secretArn: string): Promise<void> => {
+const setSecretString = async (secretString: string, secretArn: string): Promise<void> => {
     const secretsManager = new aws.SecretsManager();
     return secretsManager
         .putSecretValue({
             SecretId: secretArn,
-            SecretString: JSON.stringify(values),
+            SecretString: secretString,
         })
         .promise()
         .then(() => {
@@ -170,6 +179,7 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
     const s3BucketName = event.ResourceProperties.S3Bucket;
     const s3Path = event.ResourceProperties.S3Path;
     const mappings = JSON.parse(event.ResourceProperties.Mappings) as Mappings;
+    const wholeFile = event.ResourceProperties.WholeFile;
     const secretArn = event.ResourceProperties.SecretArn;
     // const sourceHash = event.ResourceProperties.SourceHash;
     const fileType = event.ResourceProperties.FileType;
@@ -183,9 +193,15 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
         })
         .promise();
 
-    const data = await sopsDecode((obj.Body as Buffer).toString('utf-8'), determineFileType(s3Path, fileType), kmsKeyArn);
-    const mappedValues = resolveMappings(data, mappings);
-    await setValuesInSecret(mappedValues, secretArn);
+    const data = await sopsDecode((obj.Body as Buffer).toString('utf-8'), determineFileType(s3Path, fileType, wholeFile), kmsKeyArn);
+
+    if (wholeFile) {
+        const wholeFileData = (data as SopsWholeFileData).data || '';
+        await setSecretString(wholeFileData, secretArn);
+    } else {
+        const mappedValues = resolveMappings(data, mappings);
+        await setSecretString(JSON.stringify(mappedValues), secretArn);
+    }
 
     return Promise.resolve({
         PhysicalResourceId: `secretdata_${secretArn}`,

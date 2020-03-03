@@ -27,7 +27,8 @@ export interface SopsSecretsManagerProps {
     readonly asset?: s3Assets.Asset;
     readonly path?: string;
     readonly kmsKey?: kms.IKey;
-    readonly mappings: SopsSecretsManagerMappings;
+    readonly mappings?: SopsSecretsManagerMappings;
+    readonly wholeFile?: boolean;
     readonly fileType?: SopsSecretsManagerFileType;
 }
 
@@ -101,7 +102,8 @@ export class SopsSecretsManager extends cdk.Construct {
                 S3Path: this.asset.s3ObjectKey,
                 SourceHash: this.asset.sourceHash,
                 KMSKeyArn: props.kmsKey?.keyArn,
-                Mappings: JSON.stringify(props.mappings),
+                Mappings: JSON.stringify(props.mappings || {}),
+                WholeFile: props.wholeFile || false,
                 FileType: props.fileType,
             },
         });
