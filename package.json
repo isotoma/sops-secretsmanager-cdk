@@ -42,7 +42,7 @@
         "typescript": ">=3.0.0"
     },
     "devDependencies": {
-        "@aws-cdk/assert": "1.26.0",
+        "@aws-cdk/assert": "^1.21.1",
         "auto-changelog": "^1.16.2",
         "@aws-cdk/aws-lambda": "^1.21.1",
         "@aws-cdk/aws-iam": "^1.21.1",
