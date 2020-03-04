@@ -28,7 +28,7 @@ interface ResourceProperties {
     S3Bucket: string;
     S3Path: string;
     Mappings: string; // json encoded Mappings;
-    WholeFile: boolean;
+    WholeFile: boolean | string;
     SecretArn: string;
     SourceHash: string;
     FileType: string | undefined;
@@ -60,6 +60,22 @@ interface Response {
 }
 
 type Event = CreateEvent | UpdateEvent | DeleteEvent;
+
+const normaliseBoolean = (value: boolean | string): boolean => {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    if (typeof value === 'string') {
+        if (value === 'true') {
+            return true;
+        }
+        if (value === 'false') {
+            return false;
+        }
+        throw new Error(`Unexpected string value when normalising boolean: ${value}`);
+    }
+    throw new Error(`Unexpected type ${typeof value}, ${value} when normalising boolean`);
+}
 
 const determineFileType = (s3Path: string, fileType: string | undefined, wholeFile: boolean): string => {
     if (fileType) {
@@ -179,7 +195,7 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
     const s3BucketName = event.ResourceProperties.S3Bucket;
     const s3Path = event.ResourceProperties.S3Path;
     const mappings = JSON.parse(event.ResourceProperties.Mappings) as Mappings;
-    const wholeFile = event.ResourceProperties.WholeFile;
+    const wholeFile = normaliseBoolean(event.ResourceProperties.WholeFile);
     const secretArn = event.ResourceProperties.SecretArn;
     // const sourceHash = event.ResourceProperties.SourceHash;
     const fileType = event.ResourceProperties.FileType;
