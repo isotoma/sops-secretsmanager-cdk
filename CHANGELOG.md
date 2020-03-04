@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.6.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.5.0...1.6.0)
+
+> 4 March 2020
+
+- Handle whole file secret [`#26`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/26)
+
 #### [1.5.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.4.0...1.5.0)
 
 > 3 March 2020
