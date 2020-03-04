@@ -226,15 +226,19 @@ const handleDelete = async (event: DeleteEvent): Promise<Response> => {
 };
 
 export const onEvent = (event: Event): Promise<Response> => {
-    const eventType = event.RequestType as string;
-    switch (eventType) {
-        case 'Create':
-            return handleCreate(event as CreateEvent);
-        case 'Update':
-            return handleUpdate(event as UpdateEvent);
-        case 'Delete':
-            return handleDelete(event as DeleteEvent);
+    try {
+        const eventType = event.RequestType as string;
+        switch (eventType) {
+            case 'Create':
+                return handleCreate(event as CreateEvent);
+            case 'Update':
+                return handleUpdate(event as UpdateEvent);
+            case 'Delete':
+                return handleDelete(event as DeleteEvent);
+        }
+        return Promise.reject(`Unknown event type ${eventType}`);
+    } catch (err) {
+        console.error(err);
+        return Promise.reject('Failed');
     }
-
-    throw new Error(`Unknown event type ${eventType}`);
 };
