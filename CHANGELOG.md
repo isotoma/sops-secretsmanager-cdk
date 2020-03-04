@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [1.6.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.0...1.6.1)
+
+> 4 March 2020
+
+- Fix type marshalling for wholeFile boolean [`#29`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/29)
+- Fix typing for errors [`#28`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/28)
+
 #### [1.6.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.5.0...1.6.0)
 
 > 4 March 2020
