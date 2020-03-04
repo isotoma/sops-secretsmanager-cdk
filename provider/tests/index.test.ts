@@ -207,7 +207,7 @@ describe('onCreate', () => {
                         encoding: 'json',
                     },
                 }),
-                WholeFile: 'false',  // because a boolean set in the CDK becomes a string once it reaches the provider
+                WholeFile: 'false', // because a boolean set in the CDK becomes a string once it reaches the provider
                 SecretArn: 'mysecretarn',
                 SourceHash: '123',
                 FileType: undefined,

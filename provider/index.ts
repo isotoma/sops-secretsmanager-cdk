@@ -75,7 +75,7 @@ const normaliseBoolean = (value: boolean | string): boolean => {
         throw new Error(`Unexpected string value when normalising boolean: ${value}`);
     }
     throw new Error(`Unexpected type ${typeof value}, ${value} when normalising boolean`);
-}
+};
 
 const determineFileType = (s3Path: string, fileType: string | undefined, wholeFile: boolean): string => {
     if (fileType) {
