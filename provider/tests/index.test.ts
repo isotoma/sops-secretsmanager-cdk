@@ -109,6 +109,7 @@ describe('onCreate', () => {
                             path: ['a'],
                         },
                     }),
+                    WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
                     FileType: undefined,
@@ -165,6 +166,7 @@ describe('onCreate', () => {
                         encoding: 'json',
                     },
                 }),
+                WholeFile: false,
                 SecretArn: 'mysecretarn',
                 SourceHash: '123',
                 FileType: undefined,
@@ -181,6 +183,42 @@ describe('onCreate', () => {
         });
         expect(JSON.parse(JSON.parse(mockSecretsManagerPutSecretValue.mock.calls[0][0].SecretString).key)).toEqual({
             b: 'c',
+        });
+    });
+
+    test('whole file', async () => {
+        setMockSpawn({
+            stdoutData: JSON.stringify({
+                data: 'mysecretdata',
+            }),
+        });
+
+        await onEvent({
+            RequestType: 'Create',
+            ResourceProperties: {
+                KMSKeyArn: undefined,
+                S3Bucket: 'mys3bucket',
+                S3Path: 'mys3path.txt',
+                Mappings: JSON.stringify({}),
+                WholeFile: true,
+                SecretArn: 'mysecretarn',
+                SourceHash: '123',
+                FileType: undefined,
+            },
+        });
+
+        expect(childProcess.spawn as jest.Mock).toBeCalledWith(
+            'sh',
+            ['-c', 'cat', '-', '|', path.normalize(path.join(__dirname, '../sops')), '-d', '--input-type', 'json', '--output-type', 'json', '/dev/stdin'],
+            {
+                shell: true,
+                stdio: 'pipe',
+            },
+        );
+
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+            SecretId: 'mysecretarn',
+            SecretString: 'mysecretdata',
         });
     });
 });
