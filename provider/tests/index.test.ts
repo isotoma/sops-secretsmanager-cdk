@@ -186,6 +186,47 @@ describe('onCreate', () => {
         });
     });
 
+    test('wholeFile as string value', async () => {
+        setMockSpawn({
+            stdoutData: JSON.stringify({
+                a: {
+                    b: 'c',
+                },
+            }),
+        });
+
+        await onEvent({
+            RequestType: 'Create',
+            ResourceProperties: {
+                KMSKeyArn: undefined,
+                S3Bucket: 'mys3bucket',
+                S3Path: 'mys3path.yaml',
+                Mappings: JSON.stringify({
+                    key: {
+                        path: ['a'],
+                        encoding: 'json',
+                    },
+                }),
+                WholeFile: 'false',  // because a boolean set in the CDK becomes a string once it reaches the provider
+                SecretArn: 'mysecretarn',
+                SourceHash: '123',
+                FileType: undefined,
+            },
+        });
+
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+            SecretId: 'mysecretarn',
+            SecretString: expect.any(String),
+        });
+
+        expect(JSON.parse(mockSecretsManagerPutSecretValue.mock.calls[0][0].SecretString)).toEqual({
+            key: expect.any(String),
+        });
+        expect(JSON.parse(JSON.parse(mockSecretsManagerPutSecretValue.mock.calls[0][0].SecretString).key)).toEqual({
+            b: 'c',
+        });
+    });
+
     test('whole file', async () => {
         setMockSpawn({
             stdoutData: JSON.stringify({
