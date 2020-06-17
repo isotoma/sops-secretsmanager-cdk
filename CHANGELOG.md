@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.6.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.1...1.6.2)
+
+> 17 June 2020
+
+- Issue 30: document wholefile (and the rest) [`#31`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/31)
+
 #### [1.6.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.0...1.6.1)
 
 > 4 March 2020
