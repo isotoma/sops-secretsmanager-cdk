@@ -13,8 +13,8 @@
         "compile": "npm run clean && npm run -- tsc --outDir build/ --declaration false && npm run get-sops && cp -R ./sops ./build/",
         "quick-compile": "npm run -- tsc --outDir build/ --declaration false && ([[ -f ./sops ]] || npm run get-sops) && cp ./sops ./build/",
         "test": "jest",
-        "lint": "eslint 'index.ts' 'tests/**/*.ts' --quiet --fix",
-        "lint-check": "eslint 'index.ts' 'tests/**/*.ts' --max-warnings 0"
+        "lint": "eslint 'index.ts' 'tests/**/*.ts' jest.config.js --quiet --fix",
+        "lint-check": "eslint 'index.ts' 'tests/**/*.ts' jest.config.js --max-warnings 0"
     },
     "dependencies": {
         "@types/node": ">=10"
