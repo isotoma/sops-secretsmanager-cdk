@@ -56,7 +56,7 @@ interface DeleteEvent extends BaseEvent {
 
 interface Response {
     PhysicalResourceId: string;
-    Data: {};
+    Data: Record<string, unknown>;
 }
 
 type Event = CreateEvent | UpdateEvent | DeleteEvent;
