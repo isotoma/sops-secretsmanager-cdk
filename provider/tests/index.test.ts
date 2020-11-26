@@ -33,7 +33,7 @@ beforeEach(() => {
             }),
     }));
     mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-        promise: (): Promise<object> => Promise.resolve({}),
+        promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
     }));
 });
 
@@ -64,7 +64,7 @@ const setMockSpawn = (props: SetMockSpawnProps): MockChildProcess => {
     const { stdoutData = null, stderrData = null, code = 0 } = props;
     const emitter = new MockChildProcess();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (childProcess.spawn as jest.Mock).mockImplementationOnce((file: string, args: Array<string>, options: object) => {
+    (childProcess.spawn as jest.Mock).mockImplementationOnce((file: string, args: Array<string>, options: Record<string, unknown>) => {
         if (stdoutData) {
             setTimeout(() => {
                 emitter.stdout.emit('data', new TextEncoder().encode(stdoutData));
@@ -94,7 +94,7 @@ describe('onCreate', () => {
         }));
         const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
         mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<object> => Promise.resolve({}),
+            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
         }));
 
         expect(
