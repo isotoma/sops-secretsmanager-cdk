@@ -147,7 +147,7 @@ test('can pass an asset rather than a path', () => {
         path: './test/test.yaml',
     });
 
-    const secretValues = new SopsSecretsManager(stack, 'SecretValues', {
+    new SopsSecretsManager(stack, 'SecretValues', {
         secretName: 'MySecret',
         asset: secretAsset,
         mappings: {
