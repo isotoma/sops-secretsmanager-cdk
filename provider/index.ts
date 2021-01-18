@@ -15,6 +15,7 @@ const log = (message: string, extra: Record<string, unknown> = {}): void => {
 
 const logError = (error: Error, message: string, extra: Record<string, unknown> = {}): void => {
     const stack = error.stack;
+    // istanbul ignore next
     const stackLines = stack ? stack.split(/\n/) : [];
     console.error(
         JSON.stringify({
@@ -90,16 +91,7 @@ const normaliseBoolean = (value: boolean | string): boolean => {
     if (typeof value === 'boolean') {
         return value;
     }
-    if (typeof value === 'string') {
-        if (value === 'true') {
-            return true;
-        }
-        if (value === 'false') {
-            return false;
-        }
-        throw new Error(`Unexpected string value when normalising boolean: ${value}`);
-    }
-    throw new Error(`Unexpected type ${typeof value}, ${value} when normalising boolean`);
+    return value === 'true';
 };
 
 const determineFileType = (s3Path: string, fileType: string | undefined, wholeFile: boolean): string => {
@@ -160,7 +152,12 @@ const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: stri
     log('Running sops command');
     const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
     log('Sops command args', { sopsArgs });
-    const result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
+    let result: string;
+    try {
+        result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
+    } catch {
+        result = '{}';
+    }
     log('Sops command result', { result });
     const parsed = JSON.parse(result);
     log('Sops command result', { parsed });
