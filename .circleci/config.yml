@@ -50,12 +50,6 @@ jobs:
 
       - run: npm run compile
 
-      - run: cp package.json ./build/package.json
-
-      - run: cp README.md ./build/README.md
-
-      - run: cd ./build && ls -alR
-
       - persist_to_workspace:
           root: ~/repo
           paths: .
