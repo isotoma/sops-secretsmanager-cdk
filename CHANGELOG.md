@@ -1,5 +1,17 @@
 ### Changelog
 
+#### [1.6.3](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.2...1.6.3)
+
+> 18 January 2021
+
+- Rework CI to use GitHub not CircleCI [`#38`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/38)
+- Fix construct linting [`#36`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/36)
+- Test coverage for the construct [`#35`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/35)
+- Jest coverage checking [`#34`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/34)
+- Jest config formatting [`#32`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/32)
+- Update typescript-eslint dependencies and apply fixes to fix CI [`#33`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/33)
+- Add automerge github action [`f36bec6`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/f36bec693b71d5e4aa3ae18cc493704409344032)
+
 #### [1.6.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.1...1.6.2)
 
 > 17 June 2020
