@@ -145,6 +145,96 @@ describe('onCreate', () => {
         expect(mockProc.stdin.end).toBeCalledWith('a: 1234');
     });
 
+    test('can specify file type explicitly', async () => {
+        mockS3GetObject.mockImplementation(() => ({
+            promise: (): Promise<MockS3GetObjectResponse> =>
+                Promise.resolve({
+                    Body: Buffer.from('{"a": 1234}'),
+                }),
+        }));
+        const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
+        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
+            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
+        }));
+
+        expect(
+            await onEvent({
+                RequestType: 'Create',
+                ResourceProperties: {
+                    KMSKeyArn: undefined,
+                    S3Bucket: 'mys3bucket',
+                    S3Path: 'mys3path.sops',
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                        },
+                    }),
+                    WholeFile: false,
+                    SecretArn: 'mysecretarn',
+                    SourceHash: '123',
+                    FileType: 'json',
+                },
+            }),
+        ).toEqual({
+            Data: {},
+            PhysicalResourceId: 'secretdata_mysecretarn',
+        });
+
+        expect(childProcess.spawn as jest.Mock).toBeCalledWith(
+            'sh',
+            ['-c', 'cat', '-', '|', path.normalize(path.join(__dirname, '../sops')), '-d', '--input-type', 'json', '--output-type', 'json', '/dev/stdin'],
+            {
+                shell: true,
+                stdio: 'pipe',
+            },
+        );
+        expect(mockProc.stdin.end).toBeCalledWith('{"a": 1234}');
+    });
+
+    test('handles error from exec', async () => {
+        mockS3GetObject.mockImplementation(() => ({
+            promise: (): Promise<MockS3GetObjectResponse> =>
+                Promise.resolve({
+                    Body: Buffer.from('a: 1234'),
+                }),
+        }));
+        const mockProc = setMockSpawn({ stdoutData: '', stderrData: 'Error running sops', code: 99 });
+        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
+            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
+        }));
+
+        expect(
+            await onEvent({
+                RequestType: 'Create',
+                ResourceProperties: {
+                    KMSKeyArn: undefined,
+                    S3Bucket: 'mys3bucket',
+                    S3Path: 'mys3path.yaml',
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                        },
+                    }),
+                    WholeFile: false,
+                    SecretArn: 'mysecretarn',
+                    SourceHash: '123',
+                    FileType: undefined,
+                },
+            }),
+        ).toEqual({
+            Data: {},
+            PhysicalResourceId: 'secretdata_mysecretarn',
+        });
+
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+            SecretId: 'mysecretarn',
+            SecretString: expect.any(String),
+        });
+
+        // Should successfully put an empty object into secrets manager
+        expect(JSON.parse(mockSecretsManagerPutSecretValue.mock.calls[0][0].SecretString)).toEqual({});
+    });
+
     test('mapping with encoding', async () => {
         setMockSpawn({
             stdoutData: JSON.stringify({
@@ -261,6 +351,69 @@ describe('onCreate', () => {
             SecretId: 'mysecretarn',
             SecretString: 'mysecretdata',
         });
+    });
+});
+
+describe('onUpdate', () => {
+    test('simple', async () => {
+        mockS3GetObject.mockImplementation(() => ({
+            promise: (): Promise<MockS3GetObjectResponse> =>
+                Promise.resolve({
+                    Body: Buffer.from('a: 1234'),
+                }),
+        }));
+        const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
+        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
+            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
+        }));
+
+        expect(
+            await onEvent({
+                PhysicalResourceId: 'secretdata_mysecretarn_for_update',
+                RequestType: 'Update',
+                ResourceProperties: {
+                    KMSKeyArn: undefined,
+                    S3Bucket: 'mys3bucket',
+                    S3Path: 'mys3path.yaml',
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                        },
+                    }),
+                    WholeFile: false,
+                    SecretArn: 'mysecretarn',
+                    SourceHash: '123',
+                    FileType: undefined,
+                },
+            }),
+        ).toEqual({
+            Data: {},
+            PhysicalResourceId: 'secretdata_mysecretarn_for_update',
+        });
+
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+            SecretId: 'mysecretarn',
+            SecretString: expect.any(String),
+        });
+
+        expect(JSON.parse(mockSecretsManagerPutSecretValue.mock.calls[0][0].SecretString)).toEqual({
+            key: 'abc',
+        });
+
+        expect(mockS3GetObject).toBeCalledWith({
+            Bucket: 'mys3bucket',
+            Key: 'mys3path.yaml',
+        });
+
+        expect(childProcess.spawn as jest.Mock).toBeCalledWith(
+            'sh',
+            ['-c', 'cat', '-', '|', path.normalize(path.join(__dirname, '../sops')), '-d', '--input-type', 'yaml', '--output-type', 'json', '/dev/stdin'],
+            {
+                shell: true,
+                stdio: 'pipe',
+            },
+        );
+        expect(mockProc.stdin.end).toBeCalledWith('a: 1234');
     });
 });
 

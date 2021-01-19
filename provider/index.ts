@@ -65,16 +65,7 @@ const normaliseBoolean = (value: boolean | string): boolean => {
     if (typeof value === 'boolean') {
         return value;
     }
-    if (typeof value === 'string') {
-        if (value === 'true') {
-            return true;
-        }
-        if (value === 'false') {
-            return false;
-        }
-        throw new Error(`Unexpected string value when normalising boolean: ${value}`);
-    }
-    throw new Error(`Unexpected type ${typeof value}, ${value} when normalising boolean`);
+    return value === 'true';
 };
 
 const determineFileType = (s3Path: string, fileType: string | undefined, wholeFile: boolean): string => {
@@ -125,7 +116,12 @@ const execPromise = async (args: Array<string>, input: string): Promise<string> 
 
 const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<unknown> => {
     const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
-    const result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
+    let result: string;
+    try {
+        result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
+    } catch {
+        result = '{}';
+    }
     const parsed = JSON.parse(result);
     return Promise.resolve(parsed);
 };
