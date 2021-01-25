@@ -4,6 +4,31 @@ import * as childProcess from 'child_process';
 import { Writable } from 'stream';
 import { TextDecoder } from 'util';
 
+const log = (message: string, extra: Record<string, unknown> = {}): void => {
+    console.log(
+        JSON.stringify({
+            message,
+            ...extra,
+        }),
+    );
+};
+
+const logError = (error: Error, message: string, extra: Record<string, unknown> = {}): void => {
+    const stack = error.stack;
+    const stackLines = stack ? stack.split(/\n/) : [];
+    console.error(
+        JSON.stringify({
+            error: {
+                name: error.name,
+                message: error.message,
+                stack: stackLines,
+            },
+            message,
+            ...extra,
+        }),
+    );
+};
+
 type MappingEncoding = 'string' | 'json';
 
 interface Mapping {
@@ -202,22 +227,36 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
 
     const s3 = new aws.S3();
 
-    const obj = await s3
-        .getObject({
-            Bucket: s3BucketName,
-            Key: s3Path,
-        })
-        .promise();
+    const getObjectParams = {
+        Bucket: s3BucketName,
+        Key: s3Path,
+    };
+    log('Getting object from S3', { params: getObjectParams });
+    const obj = await s3.getObject(getObjectParams).promise();
 
-    const data = await sopsDecode((obj.Body as Buffer).toString('utf-8'), determineFileType(s3Path, fileType, wholeFile), kmsKeyArn);
+    log('Reading file');
+    const fileBody = (obj.Body as Buffer).toString('utf-8');
+    log('Determining file type', { s3Path, fileType, wholeFile });
+    const fileTypeToUse = determineFileType(s3Path, fileType, wholeFile);
+    log('Decoding with sops', {
+        fileBody,
+        fileTypeToUse,
+        kmsKeyArn,
+    });
+    const data = await sopsDecode(fileBody, fileTypeToUse, kmsKeyArn);
+    log('Successfully decoded secret data with sops');
 
     if (wholeFile) {
+        log('Writing decoded data to secretsmanager as whole file', { secretArn });
         const wholeFileData = (data as SopsWholeFileData).data || '';
         await setSecretString(wholeFileData, secretArn);
     } else {
+        log('Mapping values from decoded data', { mappings });
         const mappedValues = resolveMappings(data, mappings);
+        log('Writing decoded data to secretsmanager as JSON file', { secretArn });
         await setSecretString(JSON.stringify(mappedValues), secretArn);
     }
+    log('Wrote data to secretsmanager');
 
     return Promise.resolve({
         PhysicalResourceId: `secretdata_${secretArn}`,
@@ -242,6 +281,7 @@ const handleDelete = async (event: DeleteEvent): Promise<Response> => {
 };
 
 export const onEvent = (event: Event): Promise<Response> => {
+    log('Handling event', { event });
     try {
         const eventType = event.RequestType as string;
         switch (eventType) {
@@ -252,9 +292,9 @@ export const onEvent = (event: Event): Promise<Response> => {
             case 'Delete':
                 return handleDelete(event as DeleteEvent);
         }
-        return Promise.reject(`Unknown event type ${eventType}`);
+        throw new Error(`Unknown event type ${eventType}`);
     } catch (err) {
-        console.error(err);
-        return Promise.reject('Failed');
+        logError(err, 'Unhandled error, failing');
+        return Promise.reject(new Error('Failed'));
     }
 };
