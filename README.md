@@ -1,4 +1,7 @@
 # sops-secretsmanager-cdk
+
+[![npm version](https://badge.fury.io/js/sops-secretsmanager-cdk.svg)](https://badge.fury.io/js/sops-secretsmanager-cdk)
+
 Safely load secrets from sops into secretsmanager using the CDK
 
 ## Usage
