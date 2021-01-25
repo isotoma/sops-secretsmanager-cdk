@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.7.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.5...1.7.0)
+
+> 25 January 2021
+
+- Runnable example [`#45`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/45)
+
 #### [1.6.5](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.4...1.6.5)
 
 > 25 January 2021
