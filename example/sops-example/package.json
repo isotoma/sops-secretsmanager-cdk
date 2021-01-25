@@ -1,0 +1,32 @@
+{
+  "name": "sops-example",
+  "version": "0.1.0",
+  "bin": {
+    "sops-example": "bin/sops-example.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "lint": "eslint 'lib/**/*.ts' 'bin/**/*.ts' package.json tsconfig.json --fix",
+    "lint-check": "eslint 'lib/**/*.ts' 'bin/**/*.ts' package.json tsconfig.json --max-warnings 0"
+  },
+  "devDependencies": {
+    "@types/node": "10.17.27",
+    "@typescript-eslint/eslint-plugin": "4.8.2",
+    "@typescript-eslint/parser": "4.8.2",
+    "aws-cdk": "1.86.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.9.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "prettier": "1.19.1",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "@aws-cdk/core": "1.86.0",
+    "@aws-cdk/aws-secretsmanager": "1.86.0",
+    "source-map-support": "^0.5.16"
+  }
+}

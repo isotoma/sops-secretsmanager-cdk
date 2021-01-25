@@ -76,6 +76,20 @@ is uploaded to S3 as an asset _as is_, still encoded. The custom
 resource Lambda then decodes the secrets (in memory, never on disk)
 and puts them into the SecretsManager secret.
 
+## Integration testing
+
+Run the following to deploy a test stack named
+`SopsExampleStack`. Note that if a stack with this name exists, it
+will be deleted:
+```
+$ npm run deploy-example
+```
+
+This compiles and uses the code from your working directory, finds an
+existing customer-managed KMS key, deploys a stack that uses an sample
+secret, and verifies that the created secret contains the expected
+data.
+
 ## Releasing a new version
 
 - (Almost certainly) be on latest master, with no unpublished changes

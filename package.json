@@ -24,7 +24,10 @@
         "compile": "npm run clean && npm run -- tsc --outDir build/ && (cd provider && npm install && npm run compile) && cp -R ./provider/build/ ./build/provider/ && cp package.json README.md ./build/",
         "version": "auto-changelog --template ./changelog_template.hbs -p && git add CHANGELOG.md",
         "lint": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --fix",
-        "lint-check": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --max-warnings 0"
+        "lint-check": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --max-warnings 0",
+        "lint-all": "npm run lint && (cd provider && npm run lint) && (cd example/sops-example && npm run lint)",
+        "lint-check-all": "npm run lint-check && (cd provider && npm run lint-check) && (cd example/sops-example && npm run lint-check)",
+        "deploy-example": "npm run compile && (cd example && ./run_example.sh full-test)"
     },
     "dependencies": {
         "@types/node": ">=10"
