@@ -1,5 +1,14 @@
 ### Changelog
 
+#### [1.6.4](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.3...1.6.4)
+
+> 25 January 2021
+
+- More helpful lint command that doesn't hide errors in cannot fix [`#42`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/42)
+- Provider: more logging [`#41`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/41)
+- Remove CircleCI config [`#40`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/40)
+- Remove automerge Github action [`#39`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/39)
+
 #### [1.6.3](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.2...1.6.3)
 
 > 18 January 2021
