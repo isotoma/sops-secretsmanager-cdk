@@ -280,3 +280,18 @@ describe('onDelete', () => {
         expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
     });
 });
+
+describe('unknown event type', () => {
+    test('simple', async () => {
+        await expect(
+            onEvent({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                RequestType: 'BadEventType' as any,
+                PhysicalResourceId: 'abc123',
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+});
