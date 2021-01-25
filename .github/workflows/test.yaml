@@ -24,3 +24,6 @@ jobs:
     # Test the provider
     - run: (cd ./provider && npm run lint-check)
     - run: (cd ./provider && npm run test)
+
+    # Lint the example
+    - run: (cd ./example/sops-example && npm ci && npm run lint-check)
