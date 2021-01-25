@@ -120,7 +120,7 @@ const bytesToString = (byteArray: Uint8Array): string => {
 };
 
 const execPromise = async (args: Array<string>, input: string): Promise<string> => {
-    return new Promise((res: (result: string) => void, rej: (error: childProcess.ExecException) => void): void => {
+    return new Promise((res: (result: string) => void, rej: (error: Error) => void): void => {
         const proc = childProcess.spawn('sh', ['-c', 'cat', '-', '|', ...args], { stdio: 'pipe', shell: true });
         (proc.stdin as Writable).end(input);
 
@@ -137,11 +137,19 @@ const execPromise = async (args: Array<string>, input: string): Promise<string> 
 
         proc.on('close', (code: number) => {
             if (code > 0) {
-                rej({
-                    name: `Exited with code ${code}`,
-                    message: stderr,
+                log(`Exec exited with code ${code}`, {
+                    stdout,
+                    stderr,
                 });
+                rej(new Error(`Exec exited with code ${code}`));
             } else {
+                if (stderr) {
+                    log(`Exec exited cleanly, but stderr was not empty`, {
+                        stderr,
+                    });
+                } else {
+                    log('Exec exited cleanly');
+                }
                 res(stdout);
             }
         });
@@ -149,9 +157,13 @@ const execPromise = async (args: Array<string>, input: string): Promise<string> 
 };
 
 const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: string | undefined): Promise<unknown> => {
+    log('Running sops command');
     const sopsArgs = ['-d', '--input-type', dataType, '--output-type', 'json', ...(kmsKeyArn ? ['--kms', kmsKeyArn] : []), '/dev/stdin'];
+    log('Sops command args', { sopsArgs });
     const result = await execPromise([path.join(__dirname, 'sops'), ...sopsArgs], fileContent);
+    log('Sops command result', { result });
     const parsed = JSON.parse(result);
+    log('Sops command result', { parsed });
     return Promise.resolve(parsed);
 };
 
