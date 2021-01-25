@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [1.6.5](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.4...1.6.5)
+
+> 25 January 2021
+
+- Provider exec error reporting [`#43`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/43)
+- Add npm badge [`3ef4487`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/3ef44875813fa8ae614fa61a07982fed4ecb4b25)
+
 #### [1.6.4](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.3...1.6.4)
 
 > 25 January 2021
