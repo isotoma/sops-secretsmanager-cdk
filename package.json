@@ -21,7 +21,7 @@
         "test": "jest",
         "tsc": "tsc",
         "clean": "rm -rf build/",
-        "compile": "npm run clean && npm run -- tsc --outDir build/ && (cd provider && npm install && npm run compile) && cp -R ./provider/build/ ./build/provider/ && cp package.json README.md ./build/",
+        "compile": "npm run clean && npm run -- tsc --outDir build/ && (cd provider && npm ci && npm run compile) && cp -R ./provider/build/ ./build/provider/ && cp package.json README.md ./build/",
         "version": "auto-changelog --template ./changelog_template.hbs -p && git add CHANGELOG.md",
         "lint": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --fix",
         "lint-check": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --max-warnings 0",
