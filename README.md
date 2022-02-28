@@ -56,6 +56,9 @@ if(ssm.secret) {
     - tells sops how to decode the file
     - will default getting the extension from the filename
     - unless `wholeFile` is true, then defaults to `'json'`
+- `hackToForceNode12` - optional, `boolean`
+    - if set to `true`, hacks the implicit Lambda used by the CDK to invoke the Sops lambda to use Node12
+    - this is required for deploying any new Lambdas using CDK<1.94.0 since 30th July 2021
 
 ### Mappings
 

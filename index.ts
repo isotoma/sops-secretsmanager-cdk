@@ -30,19 +30,20 @@ export interface SopsSecretsManagerProps {
     readonly mappings?: SopsSecretsManagerMappings;
     readonly wholeFile?: boolean;
     readonly fileType?: SopsSecretsManagerFileType;
+    readonly hackToForceNode12?: boolean;
 }
 
 class SopsSecretsManagerProvider extends cdk.Construct {
     public readonly provider: customResource.Provider;
 
-    public static getOrCreate(scope: cdk.Construct): customResource.Provider {
+    public static getOrCreate(scope: cdk.Construct, forceNode12: boolean): customResource.Provider {
         const stack = cdk.Stack.of(scope);
         const id = 'com.isotoma.cdk.custom-resources.sops-secrets-manager';
-        const x = (stack.node.tryFindChild(id) as SopsSecretsManagerProvider) || new SopsSecretsManagerProvider(stack, id);
+        const x = (stack.node.tryFindChild(id) as SopsSecretsManagerProvider) || new SopsSecretsManagerProvider(stack, id, forceNode12);
         return x.provider;
     }
 
-    constructor(scope: cdk.Construct, id: string) {
+    constructor(scope: cdk.Construct, id: string, forceNode12: boolean) {
         super(scope, id);
 
         this.provider = new customResource.Provider(this, 'sops-secrets-manager-provider', {
@@ -67,6 +68,16 @@ class SopsSecretsManagerProvider extends cdk.Construct {
                 ],
             }),
         });
+
+        if (forceNode12) {
+            // Find the provider lambda and hack away
+            // This section hacks the CDK's utility lambda to use Node 12,
+            // which uses Node 10 in cdk <1.94.0. This is no longer
+            // deployable as of July 30, 2021.
+            const lambdaFn = (this.provider.node.findChild('framework-onEvent') as unknown) as lambda.Function;
+            const cfnLambdaFn = lambdaFn.node.defaultChild as lambda.CfnFunction;
+            cfnLambdaFn.addPropertyOverride('Runtime', lambda.Runtime.NODEJS_12_X.toString());
+        }
     }
 }
 
@@ -100,7 +111,7 @@ export class SopsSecretsManager extends cdk.Construct {
         }
 
         new cfn.CustomResource(this, 'Resource', {
-            provider: SopsSecretsManagerProvider.getOrCreate(this),
+            provider: SopsSecretsManagerProvider.getOrCreate(this, props.hackToForceNode12 ?? false),
             resourceType: 'Custom::SopsSecretsManager',
             properties: {
                 SecretArn: this.secretArn,
