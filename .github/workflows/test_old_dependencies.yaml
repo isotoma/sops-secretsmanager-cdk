@@ -1,0 +1,24 @@
+name: "Run linting and tests, old dependencies"
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    # Use this for package.json to make sure we get the right (old) dependencies
+    - run: mv package_test_old_deps.json package.json
+    - run: rm package-lock.json
+    - run: npm i
+    # Test the construct
+    - run: npm run test
