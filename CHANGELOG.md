@@ -1,5 +1,18 @@
 ### Changelog
 
+#### [1.8.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.7.0...1.8.0)
+
+> 28 February 2022
+
+- Option to hack away node10 [`#61`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/61)
+- Test against old dependencies [`#58`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/58)
+- Hack example to remove implicit node10 usage by the CDK [`#49`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/49)
+- Bump glob-parent from 5.1.1 to 5.1.2 in /example/sops-example [`#48`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/48)
+- Bump lodash from 4.17.20 to 4.17.21 in /example/sops-example [`#47`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/47)
+- And check in the provider's package-lock.json [`d21e662`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/d21e6623e8649a700e76db6a4354346a639f5082)
+- Check in package-lock.json [`1e4d9fa`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/1e4d9fa03e449a6ceabbec95b2f2c774f6691b58)
+- Run npm ci when installing on CI [`abc1e62`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/abc1e62323166b3f78a7c813800545af0345f0c9)
+
 #### [1.7.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.6.5...1.7.0)
 
 > 25 January 2021
