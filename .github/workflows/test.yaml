@@ -21,6 +21,7 @@ jobs:
     # Test the construct
     - run: npm run lint-check
     - run: npm run test
+    - run: npm run test-old-dependencies
     # Test the provider
     - run: (cd ./provider && npm run lint-check)
     - run: (cd ./provider && npm run test)

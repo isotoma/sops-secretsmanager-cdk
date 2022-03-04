@@ -27,44 +27,46 @@
         "lint-check": "eslint 'index.ts' 'test/**/*.ts' jest.config.js --max-warnings 0",
         "lint-all": "npm run lint && (cd provider && npm run lint) && (cd example/sops-example && npm run lint)",
         "lint-check-all": "npm run lint-check && (cd provider && npm run lint-check) && (cd example/sops-example && npm run lint-check)",
-        "deploy-example": "npm run compile && (cd example && ./run_example.sh full-test)"
-    },
-    "dependencies": {
-        "@types/node": ">=10"
+        "deploy-example": "npm run compile && (cd example && ./run_example.sh full-test)",
+        "test-old-dependencies": "rm -rf _old/ && mkdir -p _old && (git ls-files | xargs -I{} sh -c 'mkdir -p $(dirname _old/{}) && cp {} _old/{}') && (cd _old && mv package_test_old_deps.json package.json && rm -f package-lock.json && npm i && npm run test)"
     },
     "peerDependencies": {
-        "@aws-cdk/aws-lambda": "^1.21.1",
+        "@aws-cdk/aws-cloudformation": "^1.21.1",
         "@aws-cdk/aws-iam": "^1.21.1",
+        "@aws-cdk/aws-kms": "^1.21.1",
+        "@aws-cdk/aws-lambda": "^1.21.1",
         "@aws-cdk/aws-s3": "^1.21.1",
         "@aws-cdk/aws-s3-assets": "^1.21.1",
-        "@aws-cdk/aws-kms": "^1.21.1",
         "@aws-cdk/aws-secretsmanager": "^1.21.1",
         "@aws-cdk/core": "^1.21.1",
         "@aws-cdk/custom-resources": "^1.21.1",
-        "@aws-cdk/aws-cloudformation": "^1.21.1",
-        "typescript": ">=3.0.0"
+        "aws-cdk-lib": "^2.0.0",
+        "constructs": "^10.0.0"
     },
     "devDependencies": {
         "@aws-cdk/assert": "^1.21.1",
-        "auto-changelog": "^1.16.2",
-        "@aws-cdk/aws-lambda": "^1.21.1",
+        "@aws-cdk/aws-cloudformation": "^1.21.1",
         "@aws-cdk/aws-iam": "^1.21.1",
+        "@aws-cdk/aws-kms": "^1.21.1",
+        "@aws-cdk/aws-lambda": "^1.21.1",
         "@aws-cdk/aws-s3": "^1.21.1",
         "@aws-cdk/aws-s3-assets": "^1.21.1",
-        "@aws-cdk/aws-kms": "^1.21.1",
         "@aws-cdk/aws-secretsmanager": "^1.21.1",
         "@aws-cdk/core": "^1.21.1",
         "@aws-cdk/custom-resources": "^1.21.1",
-        "@aws-cdk/aws-cloudformation": "^1.21.1",
-        "typescript": ">=3.0.0",
-        "jest": "24.9.0",
-        "ts-jest": "24.1.0",
+        "@types/node": ">=10",
+        "@types/jest": "^24.0.0",
+        "@typescript-eslint/eslint-plugin": "4.8.2",
+        "@typescript-eslint/parser": "4.8.2",
+        "auto-changelog": "^1.16.2",
+        "aws-cdk-lib": "^2.15.0",
+        "constructs": "^10.0.0",
         "eslint": "6.8.0",
         "eslint-config-prettier": "6.9.0",
         "eslint-plugin-prettier": "3.1.2",
+        "jest": "^26.0.0",
         "prettier": "1.19.1",
-        "@types/jest": "~24.0.22",
-        "@typescript-eslint/eslint-plugin": "4.8.2",
-        "@typescript-eslint/parser": "4.8.2"
+        "ts-jest": "^26.0.0",
+        "typescript": ">=3.0.0"
     }
 }
