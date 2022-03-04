@@ -16,13 +16,11 @@
         "lint": "eslint 'index.ts' 'tests/**/*.ts' jest.config.js --fix",
         "lint-check": "eslint 'index.ts' 'tests/**/*.ts' jest.config.js --max-warnings 0"
     },
-    "dependencies": {
-        "@types/node": ">=10"
-    },
     "devDependencies": {
         "@types/jest": "~24.0.22",
         "@typescript-eslint/eslint-plugin": "4.8.2",
         "@typescript-eslint/parser": "4.8.2",
+        "@types/node": ">=10",
         "aws-sdk": ">=2",
         "eslint": "6.8.0",
         "eslint-config-prettier": "6.9.0",
