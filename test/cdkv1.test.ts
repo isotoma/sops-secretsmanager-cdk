@@ -1,12 +1,39 @@
 import { expect as cdkExpect, haveResource } from '@aws-cdk/assert';
 import { Stack } from '@aws-cdk/core';
 import '@aws-cdk/assert/jest';
-import { SopsSecretsManager } from '..';
+import { SopsSecretsManager } from '../cdkv1';
 import * as secretsManager from '@aws-cdk/aws-secretsmanager';
 import * as kms from '@aws-cdk/aws-kms';
 import * as s3Assets from '@aws-cdk/aws-s3-assets';
 
 test('creates a secret, and a custom resource', () => {
+    const stack = new Stack();
+
+    const secretValues = new SopsSecretsManager(stack, 'SecretValues', {
+        secretName: 'MySecret',
+        path: './test/test.yaml',
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    cdkExpect(stack).to(
+        haveResource('Custom::SopsSecretsManager', {
+            SecretArn: stack.resolve((secretValues.secret as secretsManager.Secret).secretArn),
+            Mappings: '{"mykey":{"path":["a","b"]}}',
+        }),
+    );
+
+    cdkExpect(stack).to(
+        haveResource('AWS::SecretsManager::Secret', {
+            Name: 'MySecret',
+        }),
+    );
+});
+
+test('creates a secret, and a custom resource, using non-suffixed class', () => {
     const stack = new Stack();
 
     const secretValues = new SopsSecretsManager(stack, 'SecretValues', {
