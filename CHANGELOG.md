@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.9.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.8.0...1.9.0)
+
+> 4 March 2022
+
+- CDK v2 support [`#63`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/63)
+
 #### [1.8.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.7.0...1.8.0)
 
 > 28 February 2022
