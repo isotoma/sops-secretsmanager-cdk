@@ -1,5 +1,21 @@
 ### Changelog
 
+#### [1.9.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.0...1.9.1)
+
+> 7 March 2022
+
+- Mark peer dependencies as optional [`#72`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/72)
+- Tweak provider dependencies [`#70`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/70)
+- Bump y18n from 4.0.0 to 4.0.3 in /provider [`#69`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/69)
+- Bump hosted-git-info from 2.8.8 to 2.8.9 in /provider [`#68`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/68)
+- Bump glob-parent from 5.1.1 to 5.1.2 in /provider [`#67`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/67)
+- Bump lodash from 4.17.20 to 4.17.21 in /provider [`#59`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/59)
+- Bump aws-sdk from 2.799.0 to 2.814.0 in /provider [`#57`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/57)
+- Bump tmpl from 1.0.4 to 1.0.5 in /provider [`#64`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/64)
+- Bump ws from 5.2.2 to 5.2.3 in /provider [`#65`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/65)
+- Bump path-parse from 1.0.6 to 1.0.7 in /provider [`#66`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/66)
+- Update for renaming default branch from master to main [`0729547`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/07295474a4a4dd4a68c61dbc83e30e2658553c58)
+
 #### [1.9.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.8.0...1.9.0)
 
 > 4 March 2022
