@@ -43,6 +43,41 @@
         "aws-cdk-lib": "^2.0.0",
         "constructs": "^10.0.0"
     },
+    "peerDependenciesMeta": {
+        "@aws-cdk/aws-cloudformation": {
+            "optional": true
+        },
+        "@aws-cdk/aws-iam": {
+            "optional": true
+        },
+        "@aws-cdk/aws-kms": {
+            "optional": true
+        },
+        "@aws-cdk/aws-lambda": {
+            "optional": true
+        },
+        "@aws-cdk/aws-s3": {
+            "optional": true
+        },
+        "@aws-cdk/aws-s3-assets": {
+            "optional": true
+        },
+        "@aws-cdk/aws-secretsmanager": {
+            "optional": true
+        },
+        "@aws-cdk/core": {
+            "optional": true
+        },
+        "@aws-cdk/custom-resources": {
+            "optional": true
+        },
+        "aws-cdk-lib": {
+            "optional": true
+        },
+        "constructs": {
+            "optional": true
+        }
+    },
     "devDependencies": {
         "@aws-cdk/assert": "^1.21.1",
         "@aws-cdk/aws-cloudformation": "^1.21.1",
