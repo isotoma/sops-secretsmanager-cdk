@@ -21,6 +21,8 @@
     "types": ["node", "jest"]
   },
   "include": [
-    "index.ts"
+    "index.ts",
+    "cdkv1.ts",
+    "cdkv2.ts"
   ]
 }
