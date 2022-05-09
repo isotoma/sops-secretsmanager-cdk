@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [1.9.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.1...1.9.2)
+
+> 9 May 2022
+
+- Fix missing cdkv2 files in release [`#77`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/77)
+
 #### [1.9.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.0...1.9.1)
 
 > 7 March 2022
