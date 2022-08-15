@@ -36,7 +36,7 @@ class SopsSecretsManagerProvider extends cdk.Construct {
         this.provider = new customResource.Provider(this, common.providerLogicalId, {
             onEventHandler: new lambda.Function(this, common.providerFunctionLogicalId, {
                 code: lambda.Code.fromAsset(common.providerCodePath),
-                runtime: lambda.Runtime.NODEJS_12_X,
+                runtime: lambda.Runtime.NODEJS_14_X,
                 handler: common.providerHandler,
                 timeout: cdk.Duration.minutes(common.providerTimoutMinutes),
                 initialPolicy: policyStatements,
