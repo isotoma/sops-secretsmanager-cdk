@@ -1,5 +1,19 @@
 ### Changelog
 
+#### [2.1.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.1.0...2.1.1)
+
+> 15 August 2022
+
+- More runtime type-checking in the provider and tests [`#85`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/85)
+- More tests for the provider [`#37`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/37)
+- Bump ansi-regex from 4.1.0 to 4.1.1 in /example/sops-example [`#81`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/81)
+- Bump ansi-regex from 4.1.0 to 4.1.1 [`#80`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/80)
+- Bump async from 3.2.0 to 3.2.4 in /example/sops-example [`#84`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/84)
+- Bump ansi-regex from 3.0.0 to 3.0.1 in /provider [`#78`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/78)
+- Bump minimist from 1.2.5 to 1.2.6 [`#75`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/75)
+- Bump minimist from 1.2.5 to 1.2.6 in /provider [`#74`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/74)
+- Bump minimist from 1.2.5 to 1.2.6 in /example/sops-example [`#73`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/73)
+
 #### [2.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.0.0...2.1.0)
 
 > 15 August 2022
