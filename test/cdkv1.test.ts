@@ -248,24 +248,3 @@ test('uses a secret, creates a custom resource', () => {
         }),
     );
 });
-
-test('lambda runtimes, force node12', () => {
-    const stack = new Stack();
-
-    new SopsSecretsManager(stack, 'SecretValues', {
-        secretName: 'MySecret',
-        path: './test/test.yaml',
-        mappings: {
-            mykey: {
-                path: ['a', 'b'],
-            },
-        },
-        hackToForceNode12: true,
-    });
-
-    cdkExpect(stack).notTo(
-        haveResource('AWS::Lambda::Function', {
-            Runtime: 'nodejs10.x',
-        }),
-    );
-});
