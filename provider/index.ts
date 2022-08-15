@@ -30,7 +30,10 @@ const logError = (error: Error, message: string, extra: Record<string, unknown> 
     );
 };
 
-type MappingEncoding = 'string' | 'json';
+enum MappingEncoding {
+    String = 'string',
+    Json = 'json',
+}
 
 interface Mapping {
     path: Array<string>;
@@ -60,22 +63,29 @@ interface ResourceProperties {
     FileType: string | undefined;
 }
 
-type RequestType = 'Create' | 'Update' | 'Delete';
-
-interface BaseEvent {
-    RequestType: RequestType;
+enum RequestType {
+    Create = 'Create',
+    Update = 'Update',
+    Delete = 'Delete',
 }
 
-interface CreateEvent extends BaseEvent {
+interface CreateOrUpdateEvent {
     ResourceProperties: ResourceProperties;
+    RequestType: RequestType.Create | RequestType.Update;
 }
 
-interface UpdateEvent extends CreateEvent {
-    PhysicalResourceId: string;
+interface CreateEvent extends CreateOrUpdateEvent {
+    RequestType: RequestType.Create;
 }
 
-interface DeleteEvent extends BaseEvent {
+interface UpdateEvent extends CreateOrUpdateEvent {
     PhysicalResourceId: string;
+    RequestType: RequestType.Update;
+}
+
+interface DeleteEvent {
+    PhysicalResourceId: string;
+    RequestType: RequestType.Delete;
 }
 
 // interface ResponseData {}
@@ -103,8 +113,73 @@ const determineFileType = (s3Path: string, fileType: string | undefined, wholeFi
         return 'json';
     }
 
-    const parts = s3Path.split('.') as Array<string>;
-    return parts.pop() as string;
+    const parts = s3Path.split('.');
+    const lastPart = parts.pop();
+    if (typeof lastPart === 'undefined') {
+        throw new Error(`String '${s3Path}' split to have zero elements. This should not happen.`);
+    }
+    return lastPart;
+};
+
+const isMapping = (obj: unknown): obj is Mapping => {
+    if (!hasKey('path', obj)) {
+        return false;
+    }
+    if (!isArrayOfStrings(obj.path)) {
+        return false;
+    }
+
+    // Is optional
+    if (!hasKey('encoding', obj)) {
+        return true;
+    }
+
+    const encoding = obj.encoding;
+    if (!isString(encoding)) {
+        return false;
+    }
+    try {
+        toMappingEncodingOrError(encoding);
+    } catch {
+        return false;
+    }
+    return true;
+};
+
+const isMappings = (obj: unknown): obj is Mappings => {
+    if (typeof obj !== 'object') {
+        return false;
+    }
+    if (!obj) {
+        return false;
+    }
+    for (const value of Object.values(obj)) {
+        if (!isMapping(value)) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+const toMappingsOrError = (obj: unknown, errorMessage: string): Mappings => {
+    if (isMappings(obj)) {
+        return obj;
+    }
+    throw new Error(errorMessage);
+};
+
+const toMappingEncodingOrError = (mappingEncodingAsString: string | undefined): MappingEncoding | undefined => {
+    if (typeof mappingEncodingAsString === 'undefined') {
+        return undefined;
+    }
+    switch (mappingEncodingAsString) {
+        case 'string':
+            return MappingEncoding.String;
+        case 'json':
+            return MappingEncoding.Json;
+    }
+    throw new Error(`Unknown mapping encoding: ${mappingEncodingAsString}`);
 };
 
 const bytesToString = (byteArray: Uint8Array): string => {
@@ -168,6 +243,17 @@ interface JsonData {
     [key: string]: unknown;
 }
 
+const isJsonData = (obj: unknown): obj is JsonData => {
+    return typeof obj === 'object';
+};
+
+const getJsonDataOrError = (obj: unknown, errorMessage: string): JsonData => {
+    if (isJsonData(obj)) {
+        return obj;
+    }
+    throw new Error(errorMessage);
+};
+
 const resolveMappingPath = (data: JsonData, path: Array<string>, encoding: MappingEncoding): string | undefined => {
     if (typeof data !== 'object') {
         return undefined;
@@ -175,7 +261,7 @@ const resolveMappingPath = (data: JsonData, path: Array<string>, encoding: Mappi
 
     if (path.length > 1) {
         const [head, ...rest] = path;
-        return resolveMappingPath(data[head] as JsonData, rest, encoding);
+        return resolveMappingPath(getJsonDataOrError(data[head], `Invalid json data when resolving mapping at: ${head}`), rest, encoding);
     }
 
     const value = data[path[0]];
@@ -185,12 +271,12 @@ const resolveMappingPath = (data: JsonData, path: Array<string>, encoding: Mappi
     }
 
     switch (encoding) {
-        case 'string' as MappingEncoding:
+        case MappingEncoding.String:
             if (typeof value === 'object') {
                 return undefined;
             }
             return String(value);
-        case 'json' as MappingEncoding:
+        case MappingEncoding.Json:
             return JSON.stringify(value);
     }
 
@@ -200,10 +286,10 @@ const resolveMappingPath = (data: JsonData, path: Array<string>, encoding: Mappi
 type KeyAndMapping = [string, Mapping];
 
 const resolveMappings = (data: unknown, mappings: Mappings): MappedValues => {
-    const mapped = {} as MappedValues;
+    const mapped: MappedValues = {};
     Object.entries(mappings).forEach((keyAndMapping: KeyAndMapping) => {
         const [key, mapping] = keyAndMapping;
-        const value = resolveMappingPath(data as JsonData, mapping.path, mapping.encoding || ('string' as MappingEncoding));
+        const value = resolveMappingPath(getJsonDataOrError(data, 'Invalid json data'), mapping.path, toMappingEncodingOrError(mapping.encoding) || MappingEncoding.String);
         if (typeof value !== 'undefined') {
             mapped[key] = value;
         }
@@ -224,11 +310,11 @@ const setSecretString = async (secretString: string, secretArn: string): Promise
         });
 };
 
-const handleCreate = async (event: CreateEvent): Promise<Response> => {
+const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
     const kmsKeyArn = event.ResourceProperties.KMSKeyArn;
     const s3BucketName = event.ResourceProperties.S3Bucket;
     const s3Path = event.ResourceProperties.S3Path;
-    const mappings = JSON.parse(event.ResourceProperties.Mappings) as Mappings;
+    const mappings = toMappingsOrError(JSON.parse(event.ResourceProperties.Mappings), 'Unable to parse mappings to a valid shape');
     const wholeFile = normaliseBoolean(event.ResourceProperties.WholeFile);
     const secretArn = event.ResourceProperties.SecretArn;
     // const sourceHash = event.ResourceProperties.SourceHash;
@@ -275,7 +361,7 @@ const handleCreate = async (event: CreateEvent): Promise<Response> => {
 
 const handleUpdate = async (event: UpdateEvent): Promise<Response> => {
     const physicalResourceId = event.PhysicalResourceId;
-    const response = await handleCreate(event as CreateEvent);
+    const response = await handleCreate(event);
     return Promise.resolve({
         ...response,
         PhysicalResourceId: physicalResourceId,
@@ -289,21 +375,125 @@ const handleDelete = async (event: DeleteEvent): Promise<Response> => {
     });
 };
 
-export const onEvent = (event: Event): Promise<Response> => {
-    log('Handling event', { event });
-    try {
-        const eventType = event.RequestType as string;
-        switch (eventType) {
-            case 'Create':
-                return handleCreate(event as CreateEvent);
-            case 'Update':
-                return handleUpdate(event as UpdateEvent);
-            case 'Delete':
-                return handleDelete(event as DeleteEvent);
+const hasKey = <K extends string>(key: K, obj: unknown): obj is { [_ in K]: Record<string, unknown> } => {
+    return typeof obj === 'object' && !!obj && key in obj;
+};
+
+const getTypedKeyOrError = <A>(key: string, obj: unknown, errorMessageRoot: string, typeName: string, typeCheck: (value: unknown) => value is A): A => {
+    if (!hasKey(key, obj)) {
+        throw new Error(`${errorMessageRoot}: no ${key} set`);
+    }
+    const value = obj[key];
+    if (!typeCheck(value)) {
+        throw new Error(`${errorMessageRoot}: ${key} is not a ${typeName}`);
+    }
+    return value;
+};
+
+const getTypedKeyOrUndefined = <A>(key: string, obj: unknown, errorMessageRoot: string, typeName: string, typeCheck: (value: unknown) => value is A): A | undefined => {
+    if (!hasKey(key, obj)) {
+        return undefined;
+    }
+    const value = obj[key];
+    if (!typeCheck(value)) {
+        return undefined;
+    }
+    return value;
+};
+
+const getUntypedKeyOrError = (key: string, obj: unknown, errorMessageRoot: string): unknown => {
+    if (!hasKey(key, obj)) {
+        throw new Error(`${errorMessageRoot}: no ${key} set`);
+    }
+    return obj[key];
+};
+
+const isString = (a: unknown): a is string => {
+    return typeof a === 'string';
+};
+
+const isStringOrBoolean = (a: unknown): a is string | boolean => {
+    return typeof a === 'string' || typeof a === 'boolean';
+};
+
+const isArrayOfStrings = (obj: unknown): obj is Array<string> => {
+    if (!Array.isArray(obj)) {
+        return false;
+    }
+    for (const item of obj) {
+        if (!isString(item)) {
+            return false;
         }
-        throw new Error(`Unknown event type ${eventType}`);
-    } catch (err) {
+    }
+    return true;
+};
+
+const getStringKeyOrError = (key: string, obj: unknown, errorMessageRoot: string): string => {
+    return getTypedKeyOrError<string>(key, obj, errorMessageRoot, 'string', isString);
+};
+
+const getStringOrBooleanKeyOrError = (key: string, obj: unknown, errorMessageRoot: string): string | boolean => {
+    return getTypedKeyOrError<string | boolean>(key, obj, errorMessageRoot, '(string | boolean)', isStringOrBoolean);
+};
+
+const getStringKeyOrUndefined = (key: string, obj: unknown, errorMessageRoot: string): string | undefined => {
+    return getTypedKeyOrUndefined<string>(key, obj, errorMessageRoot, 'string', isString);
+};
+
+const decodeResourceProperties = (resourceProperties: unknown): ResourceProperties => {
+    return {
+        KMSKeyArn: getStringKeyOrUndefined('KMSKeyArn', resourceProperties, 'Invalid resourceProperties'),
+        S3Bucket: getStringKeyOrError('S3Bucket', resourceProperties, 'Invalid resourceProperties'),
+        S3Path: getStringKeyOrError('S3Path', resourceProperties, 'Invalid resourceProperties'),
+        Mappings: getStringKeyOrError('Mappings', resourceProperties, 'Invalid resourceProperties'),
+        WholeFile: getStringOrBooleanKeyOrError('WholeFile', resourceProperties, 'Invalid resourceProperties'),
+        SecretArn: getStringKeyOrError('SecretArn', resourceProperties, 'Invalid resourceProperties'),
+        SourceHash: getStringKeyOrError('SourceHash', resourceProperties, 'Invalid resourceProperties'),
+        FileType: getStringKeyOrUndefined('FileType', resourceProperties, 'Invalid resourceProperties'),
+    };
+};
+
+const decodeEvent = (event: unknown): Event => {
+    const requestType = getStringKeyOrError('RequestType', event, 'Invalid event');
+    switch (requestType) {
+        case 'Create':
+            return {
+                RequestType: RequestType.Create,
+                ResourceProperties: decodeResourceProperties(getUntypedKeyOrError('ResourceProperties', event, 'Invalid create event')),
+            };
+        case 'Update':
+            return {
+                RequestType: RequestType.Update,
+                PhysicalResourceId: getStringKeyOrError('PhysicalResourceId', event, 'Invalid update event'),
+                ResourceProperties: decodeResourceProperties(getUntypedKeyOrError('ResourceProperties', event, 'Invalid update event')),
+            };
+        case 'Delete':
+            return {
+                PhysicalResourceId: getStringKeyOrError('PhysicalResourceId', event, 'Invalid delete event'),
+                RequestType: RequestType.Delete,
+            };
+    }
+    throw new Error(`Unknown event type: ${requestType}`);
+};
+
+const handleEvent = async (inputEvent: unknown): Promise<Response> => {
+    log('Handling event', { event: inputEvent });
+    const event = decodeEvent(inputEvent);
+    switch (event.RequestType) {
+        case RequestType.Create:
+            return handleCreate(event);
+        case RequestType.Update:
+            return handleUpdate(event);
+        case RequestType.Delete:
+            return handleDelete(event);
+    }
+    // istanbul ignore next
+    throw new Error('Unknown event type. This should be unreachable.');
+};
+
+export const onEvent = (inputEvent: unknown): Promise<Response> => {
+    return handleEvent(inputEvent).catch(err => {
         logError(err, 'Unhandled error, failing');
         return Promise.reject(new Error('Failed'));
-    }
+    });
 };

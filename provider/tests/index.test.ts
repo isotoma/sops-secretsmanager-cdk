@@ -488,11 +488,212 @@ describe('unknown event type', () => {
     test('simple', async () => {
         await expect(
             onEvent({
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                RequestType: 'BadEventType' as any,
+                RequestType: 'BadEventType',
                 PhysicalResourceId: 'abc123',
             }),
         ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+});
+
+describe('invalid event shape', () => {
+    test('simple', async () => {
+        await expect(
+            onEvent({
+                foo: 'bar',
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('delete missing physicalresourceid', async () => {
+        await expect(
+            onEvent({
+                RequestType: 'Delete',
+                // No physicalresourceid
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update missing physicalresourceid', async () => {
+        await expect(
+            onEvent({
+                RequestType: 'Update',
+                // No physicalresourceid
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+});
+
+describe('invalid event attribute value shapes', () => {
+    const updateDefault = {
+        PhysicalResourceId: 'secretdata_mysecretarn_for_update',
+        RequestType: 'Update',
+        ResourceProperties: {
+            KMSKeyArn: undefined,
+            S3Bucket: 'mys3bucket',
+            S3Path: 'mys3path.yaml',
+            Mappings: JSON.stringify({
+                key: {
+                    path: ['a'],
+                },
+            }),
+            WholeFile: false,
+            SecretArn: 'mysecretarn',
+            SourceHash: '123',
+            FileType: undefined,
+        },
+    };
+
+    test('update mappings path not array of strings', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    Mappings: JSON.stringify({
+                        key: {
+                            // Not an array of strings
+                            path: [true, ['foo']],
+                        },
+                    }),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings path not array at all', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    Mappings: JSON.stringify({
+                        key: {
+                            // Not an array at all
+                            path: -1,
+                        },
+                    }),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings path not set', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    Mappings: JSON.stringify({
+                        key: {
+                            // No path at all
+                        },
+                    }),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings encoding not a string', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                            // Not a string
+                            encoding: -1,
+                        },
+                    }),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings not an object', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    // Not an object
+                    Mappings: JSON.stringify('foo'),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings is null', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    // Not an object
+                    Mappings: JSON.stringify(null),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update mappings encoding not a valid encoding name', async () => {
+        await expect(
+            onEvent({
+                ...updateDefault,
+                ResourceProperties: {
+                    ...updateDefault.ResourceProperties,
+                    Mappings: JSON.stringify({
+                        key: {
+                            path: ['a'],
+                            // Not a valid encoding name
+                            encoding: 'this is not a valid encoding name',
+                        },
+                    }),
+                },
+            }),
+        ).rejects.toThrow('Failed');
+
+        expect(mockS3GetObject).not.toHaveBeenCalled();
+        expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
+    });
+
+    test('update resourceproperties not array at all', async () => {
+        const event: Record<string, unknown> = {
+            ...updateDefault,
+        };
+        delete event['ResourceProperties'];
+        await expect(onEvent(event)).rejects.toThrow('Failed');
 
         expect(mockS3GetObject).not.toHaveBeenCalled();
         expect(mockSecretsManagerPutSecretValue).not.toHaveBeenCalled();
