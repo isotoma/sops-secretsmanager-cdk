@@ -1,5 +1,11 @@
 ### Changelog
 
+### [2.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.2...2.0.0)
+
+> 15 August 2022
+
+- Remove hackToForceNode12 [`#82`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/82)
+
 #### [1.9.2](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.1...1.9.2)
 
 > 9 May 2022
