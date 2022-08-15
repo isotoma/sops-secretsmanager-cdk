@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [2.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.0.0...2.1.0)
+
+> 15 August 2022
+
+- Use node14 [`#83`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/83)
+
 ### [2.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/1.9.2...2.0.0)
 
 > 15 August 2022
