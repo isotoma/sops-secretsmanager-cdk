@@ -18,14 +18,14 @@ export interface SopsSecretsManagerProps extends common.SopsSecretsManagerBasePr
 class SopsSecretsManagerProvider extends cdk.Construct {
     public readonly provider: customResource.Provider;
 
-    public static getOrCreate(scope: cdk.Construct, forceNode12: boolean): customResource.Provider {
+    public static getOrCreate(scope: cdk.Construct): customResource.Provider {
         const stack = cdk.Stack.of(scope);
         const id = common.providerId;
-        const x = (stack.node.tryFindChild(id) as SopsSecretsManagerProvider) || new SopsSecretsManagerProvider(stack, id, forceNode12);
+        const x = (stack.node.tryFindChild(id) as SopsSecretsManagerProvider) || new SopsSecretsManagerProvider(stack, id);
         return x.provider;
     }
 
-    constructor(scope: cdk.Construct, id: string, forceNode12: boolean) {
+    constructor(scope: cdk.Construct, id: string) {
         super(scope, id);
 
         const policyStatements: Array<iam.PolicyStatement> = [];
@@ -42,16 +42,6 @@ class SopsSecretsManagerProvider extends cdk.Construct {
                 initialPolicy: policyStatements,
             }),
         });
-
-        if (forceNode12) {
-            // Find the provider lambda and hack away
-            // This section hacks the CDK's utility lambda to use Node 12,
-            // which uses Node 10 in cdk <1.94.0. This is no longer
-            // deployable as of July 30, 2021.
-            const lambdaFn = (this.provider.node.findChild('framework-onEvent') as unknown) as lambda.Function;
-            const cfnLambdaFn = lambdaFn.node.defaultChild as lambda.CfnFunction;
-            cfnLambdaFn.addPropertyOverride('Runtime', lambda.Runtime.NODEJS_12_X.toString());
-        }
     }
 }
 
@@ -85,7 +75,7 @@ export class SopsSecretsManager extends cdk.Construct {
         }
 
         new cfn.CustomResource(this, 'Resource', {
-            provider: SopsSecretsManagerProvider.getOrCreate(this, props.hackToForceNode12 ?? false),
+            provider: SopsSecretsManagerProvider.getOrCreate(this),
             resourceType: 'Custom::SopsSecretsManager',
             properties: {
                 SecretArn: this.secretArn,

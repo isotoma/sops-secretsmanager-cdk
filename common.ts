@@ -22,7 +22,6 @@ export interface SopsSecretsManagerBaseProps {
     readonly mappings?: SopsSecretsManagerMappings;
     readonly wholeFile?: boolean;
     readonly fileType?: SopsSecretsManagerFileType;
-    readonly hackToForceNode12?: boolean;
 }
 
 export const providerId = 'com.isotoma.cdk.custom-resources.sops-secrets-manager';
