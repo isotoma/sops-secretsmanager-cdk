@@ -25,8 +25,8 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.86.0",
-    "@aws-cdk/aws-secretsmanager": "1.86.0",
+    "@aws-cdk/core": "1.180.0",
+    "@aws-cdk/aws-secretsmanager": "1.180.0",
     "source-map-support": "^0.5.16"
   }
 }
