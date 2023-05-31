@@ -3,7 +3,7 @@ import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as customResource from '@aws-cdk/custom-resources';
 
-import { SopsSecretsManager } from './sops-secretsmanager-cdk-dev';
+import { SopsSecretsManager } from './sops-secretsmanager-cdk-dev/cdkv1';
 
 export class SopsExampleStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
