@@ -71,16 +71,16 @@ It takes an object, where:
 
 ## CDK v1 and v2
 
-CDK v1:
+CDK v2:
 ```typescript
 import { SopsSecretsManager } from 'sops-secretsmanager-cdk';
 // or
-import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv1';
+import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv2';
 ```
 
-CDK v2:
+CDK v1:
 ```typescript
-import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv2';
+import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv1';
 ```
 
 ## Implementation
