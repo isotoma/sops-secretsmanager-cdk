@@ -8,10 +8,12 @@ import { Writable } from 'stream';
 const mockS3GetObject = jest.fn();
 const mockSecretsManagerPutSecretValue = jest.fn();
 
-jest.mock('aws-sdk', () => ({
+jest.mock('@aws-sdk/client-s3', () => ({
     S3: jest.fn(() => ({
         getObject: mockS3GetObject,
     })),
+}));
+jest.mock('@aws-sdk/client-secrets-manager', () => ({
     SecretsManager: jest.fn(() => ({
         putSecretValue: mockSecretsManagerPutSecretValue,
     })),
@@ -19,19 +21,23 @@ jest.mock('aws-sdk', () => ({
 jest.mock('child_process');
 
 interface MockS3GetObjectResponse {
-    Body: Buffer;
+    Body: {
+        transformToString: () => Promise<string>;
+    };
 }
 
 beforeEach(() => {
     mockS3GetObject.mockReset();
     mockSecretsManagerPutSecretValue.mockReset();
 
-    mockS3GetObject.mockImplementation(() => ({
-        promise: (): Promise<MockS3GetObjectResponse> =>
+    mockS3GetObject.mockImplementation(
+        (): Promise<MockS3GetObjectResponse> =>
             Promise.resolve({
-                Body: Buffer.from(''),
+                Body: {
+                    transformToString: () => Promise.resolve(''),
+                },
             }),
-    }));
+    );
     mockSecretsManagerPutSecretValue.mockImplementation(() => ({
         promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
     }));
@@ -86,16 +92,16 @@ const setMockSpawn = (props: SetMockSpawnProps): MockChildProcess => {
 
 describe('onCreate', () => {
     test('simple', async () => {
-        mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<MockS3GetObjectResponse> =>
+        mockS3GetObject.mockImplementation(
+            (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
-                    Body: Buffer.from('a: 1234'),
+                    Body: {
+                        transformToString: () => Promise.resolve('a: 1234'),
+                    },
                 }),
-        }));
+        );
         const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
-        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
-        }));
+        mockSecretsManagerPutSecretValue.mockImplementation((): Promise<Record<string, unknown>> => Promise.resolve({}));
 
         expect(
             await onEvent({
@@ -146,16 +152,16 @@ describe('onCreate', () => {
     });
 
     test('can specify file type explicitly', async () => {
-        mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<MockS3GetObjectResponse> =>
+        mockS3GetObject.mockImplementation(
+            (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
-                    Body: Buffer.from('{"a": 1234}'),
+                    Body: {
+                        transformToString: () => Promise.resolve('{"a": 1234}'),
+                    },
                 }),
-        }));
+        );
         const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }), stderrData: 'a message' });
-        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
-        }));
+        mockSecretsManagerPutSecretValue.mockImplementation((): Promise<Record<string, unknown>> => Promise.resolve({}));
 
         expect(
             await onEvent({
@@ -192,16 +198,16 @@ describe('onCreate', () => {
     });
 
     test('handles error from exec', async () => {
-        mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<MockS3GetObjectResponse> =>
+        mockS3GetObject.mockImplementation(
+            (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
-                    Body: Buffer.from('a: 1234'),
+                    Body: {
+                        transformToString: () => Promise.resolve('a: 1234'),
+                    },
                 }),
-        }));
+        );
         setMockSpawn({ stdoutData: '', stderrData: 'Error running sops', code: 99 });
-        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
-        }));
+        mockSecretsManagerPutSecretValue.mockImplementation((): Promise<Record<string, unknown>> => Promise.resolve({}));
 
         expect(
             await onEvent({
@@ -354,16 +360,16 @@ describe('onCreate', () => {
     });
 
     test('pass kms key arn', async () => {
-        mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<MockS3GetObjectResponse> =>
+        mockS3GetObject.mockImplementation(
+            (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
-                    Body: Buffer.from('a: 1234'),
+                    Body: {
+                        transformToString: () => Promise.resolve('a: 1234'),
+                    },
                 }),
-        }));
+        );
         setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
-        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
-        }));
+        mockSecretsManagerPutSecretValue.mockImplementation((): Promise<Record<string, unknown>> => Promise.resolve({}));
 
         expect(
             await onEvent({
@@ -406,16 +412,16 @@ describe('onCreate', () => {
 
 describe('onUpdate', () => {
     test('simple', async () => {
-        mockS3GetObject.mockImplementation(() => ({
-            promise: (): Promise<MockS3GetObjectResponse> =>
+        mockS3GetObject.mockImplementation(
+            (): Promise<MockS3GetObjectResponse> =>
                 Promise.resolve({
-                    Body: Buffer.from('a: 1234'),
+                    Body: {
+                        transformToString: () => Promise.resolve('a: 1234'),
+                    },
                 }),
-        }));
+        );
         const mockProc = setMockSpawn({ stdoutData: JSON.stringify({ a: 'abc' }) });
-        mockSecretsManagerPutSecretValue.mockImplementation(() => ({
-            promise: (): Promise<Record<string, unknown>> => Promise.resolve({}),
-        }));
+        mockSecretsManagerPutSecretValue.mockImplementation((): Promise<Record<string, unknown>> => Promise.resolve({}));
 
         expect(
             await onEvent({
