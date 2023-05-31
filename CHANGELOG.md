@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [3.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.0.0...3.1.0)
+
+> 31 May 2023
+
+- Update sops to 3.7.3 [`#107`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/107)
+- Use node 18 [`#106`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/106)
+- Use CDKv2 for example [`#105`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/105)
+
 ### [3.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.1.1...3.0.0)
 
 > 31 May 2023
