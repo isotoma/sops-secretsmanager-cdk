@@ -1,4 +1,5 @@
-import * as aws from 'aws-sdk';
+import { S3 } from '@aws-sdk/client-s3';
+import { SecretsManager } from '@aws-sdk/client-secrets-manager';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Writable } from 'stream';
@@ -298,16 +299,11 @@ const resolveMappings = (data: unknown, mappings: Mappings): MappedValues => {
 };
 
 const setSecretString = async (secretString: string, secretArn: string): Promise<void> => {
-    const secretsManager = new aws.SecretsManager();
-    return secretsManager
-        .putSecretValue({
-            SecretId: secretArn,
-            SecretString: secretString,
-        })
-        .promise()
-        .then(() => {
-            // do nothing
-        });
+    const secretsManager = new SecretsManager({});
+    await secretsManager.putSecretValue({
+        SecretId: secretArn,
+        SecretString: secretString,
+    });
 };
 
 const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
@@ -320,17 +316,24 @@ const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
     // const sourceHash = event.ResourceProperties.SourceHash;
     const fileType = event.ResourceProperties.FileType;
 
-    const s3 = new aws.S3();
+    const s3 = new S3({});
 
     const getObjectParams = {
         Bucket: s3BucketName,
         Key: s3Path,
     };
     log('Getting object from S3', { params: getObjectParams });
-    const obj = await s3.getObject(getObjectParams).promise();
+    const obj = await s3.getObject(getObjectParams);
+    const body = obj.Body;
+
+    console.error(obj);
+
+    if (typeof body === 'undefined') {
+        throw new Error('Body of object from s3 is empty');
+    }
 
     log('Reading file');
-    const fileBody = (obj.Body as Buffer).toString('utf-8');
+    const fileBody = await body.transformToString('utf-8');
     log('Determining file type', { s3Path, fileType, wholeFile });
     const fileTypeToUse = determineFileType(s3Path, fileType, wholeFile);
     log('Decoding with sops', {
