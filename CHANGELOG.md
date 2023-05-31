@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [3.1.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.1.0...3.1.1)
+
+> 31 May 2023
+
+- Update publish workflow to use node 18 [`e1c56ee`](https://github.com/isotoma/sops-secretsmanager-cdk/commit/e1c56eec45604adbf1f350bc5c937b25f0aa79da)
+
 #### [3.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.0.0...3.1.0)
 
 > 31 May 2023
