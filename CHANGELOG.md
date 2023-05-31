@@ -1,5 +1,22 @@
 ### Changelog
 
+### [3.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.1.1...3.0.0)
+
+> 31 May 2023
+
+- Change index exports to cdkv2 [`#104`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/104)
+- Bump minimatch from 3.0.4 to 3.1.2 in /example/sops-example [`#102`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/102)
+- Update example dependencies [`#101`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/101)
+- Bump jsdom, jest and ts-jest in /provider [`#96`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/96)
+- Bump pac-resolver and aws-cdk in /example/sops-example [`#95`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/95)
+- Bump json-schema and jsprim in /provider [`#98`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/98)
+- Bump minimatch from 3.0.4 to 3.1.2 in /provider [`#88`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/88)
+- Bump decode-uri-component from 0.2.0 to 0.2.2 [`#89`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/89)
+- Bump decode-uri-component from 0.2.0 to 0.2.2 in /provider [`#90`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/90)
+- Bump json5 from 2.2.0 to 2.2.3 [`#93`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/93)
+- Bump qs from 6.5.2 to 6.5.3 in /provider [`#91`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/91)
+- Bump json5 from 2.1.3 to 2.2.3 in /provider [`#92`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/92)
+
 #### [2.1.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/2.1.0...2.1.1)
 
 > 15 August 2022
