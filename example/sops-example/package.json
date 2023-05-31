@@ -16,7 +16,6 @@
     "@types/node": "10.17.27",
     "@typescript-eslint/eslint-plugin": "4.8.2",
     "@typescript-eslint/parser": "4.8.2",
-    "aws-cdk": "1.187.0",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.9.0",
     "eslint-plugin-prettier": "3.1.2",
@@ -25,8 +24,7 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/core": "1.187.0",
-    "@aws-cdk/aws-secretsmanager": "1.187.0",
+    "aws-cdk-lib": "2.81.0",
     "source-map-support": "^0.5.16"
   }
 }

@@ -12,10 +12,11 @@ setup() {
     keyIds="$(aws kms list-keys | jq -r '.Keys[].KeyId')"
     keyArn=
     while IFS= read -r keyId; do
-        keyDesc="$(aws kms describe-key --key-id "$keyId")"
-        keyManager="$(echo "$keyDesc" | jq -r .KeyMetadata.KeyManager)"
-        keyArn="$(echo "$keyDesc" | jq -r .KeyMetadata.Arn)"
-        if [[ $keyManager == "CUSTOMER" ]]; then
+        candidateKeyDesc="$(aws kms describe-key --key-id "$keyId")"
+        candidateKeyManager="$(echo "$candidateKeyDesc" | jq -r .KeyMetadata.KeyManager)"
+        candidateKeyArn="$(echo "$candidateKeyDesc" | jq -r .KeyMetadata.Arn)"
+        if [[ $candidateKeyManager == "CUSTOMER" ]]; then
+            keyArn="$candidateKeyArn"
             break
         fi
     done <<< "$keyIds"
