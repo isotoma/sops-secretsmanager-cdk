@@ -7,7 +7,7 @@
         "url": "https://isotoma.com"
     },
     "scripts": {
-        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux -O ./sops && chmod a+x ./sops",
+        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux -O ./sops && chmod a+x ./sops",
         "tsc": "tsc",
         "clean": "rm -rf build/",
         "compile": "npm run clean && npm run -- tsc --outDir build/ --declaration false && npm run get-sops && cp -R ./sops ./build/",
