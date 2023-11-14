@@ -46,9 +46,11 @@ if(ssm.secret) {
 - `kmsKey` - optional
     - must be a `kms.IKey`
     - the sops file contains a reference to the KMS key, so probably not actually needed
-- `mappings` and `wholeFile` - must set `mappings` or set `wholeFile` to `true`
+- `mappings`, `wholeFile` and `singleValueMapping` - must set `mappings` or `singleValueMapping` or set `wholeFile` to `true`
     - if `mappings`, must be a `SopsSecretsManagerMappings`
         - which determines how the values from the sops file are mapped to keys in the secret (see below)
+    - if `singleValueMapping`, must be a `SopsSecretsManagerMapping`
+         - which determines how a single value from the sops file is mapped to the text value of the secret
     - if `wholeFile` is true
         - then rather than treating the sops data as structured and mapping keys over, the whole file will be decrypted and stored as the body of the secret
 - `fileType` - optional

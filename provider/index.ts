@@ -58,6 +58,7 @@ interface ResourceProperties {
     S3Bucket: string;
     S3Path: string;
     Mappings: string; // json encoded Mappings;
+    SingleValueMapping: string; // json encoded Mapping;
     WholeFile: boolean | string;
     SecretArn: string;
     SourceHash: string;
@@ -165,6 +166,18 @@ const isMappings = (obj: unknown): obj is Mappings => {
 
 const toMappingsOrError = (obj: unknown, errorMessage: string): Mappings => {
     if (isMappings(obj)) {
+        return obj;
+    }
+    throw new Error(errorMessage);
+};
+
+const toMappingOrNullOrError = (obj: unknown, errorMessage: string): Mapping | null => {
+    console.log('obj', obj);
+
+    if (obj === null) {
+        return null;
+    }
+    if (isMapping(obj)) {
         return obj;
     }
     throw new Error(errorMessage);
@@ -311,6 +324,7 @@ const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
     const s3BucketName = event.ResourceProperties.S3Bucket;
     const s3Path = event.ResourceProperties.S3Path;
     const mappings = toMappingsOrError(JSON.parse(event.ResourceProperties.Mappings), 'Unable to parse mappings to a valid shape');
+    const singleValueMapping = toMappingOrNullOrError(JSON.parse(event.ResourceProperties.SingleValueMapping), 'Unable to parse singleValueMapping to a valid shape');
     const wholeFile = normaliseBoolean(event.ResourceProperties.WholeFile);
     const secretArn = event.ResourceProperties.SecretArn;
     // const sourceHash = event.ResourceProperties.SourceHash;
@@ -348,6 +362,10 @@ const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
         log('Writing decoded data to secretsmanager as whole file', { secretArn });
         const wholeFileData = (data as SopsWholeFileData).data || '';
         await setSecretString(wholeFileData, secretArn);
+    } else if (singleValueMapping) {
+        log('Mapping values from decoded data', { singleValueMapping });
+        const mappedValue = resolveMappings(data, { '': singleValueMapping })[''];
+        await setSecretString(mappedValue, secretArn);
     } else {
         log('Mapping values from decoded data', { mappings });
         const mappedValues = resolveMappings(data, mappings);
@@ -449,6 +467,7 @@ const decodeResourceProperties = (resourceProperties: unknown): ResourceProperti
         S3Bucket: getStringKeyOrError('S3Bucket', resourceProperties, 'Invalid resourceProperties'),
         S3Path: getStringKeyOrError('S3Path', resourceProperties, 'Invalid resourceProperties'),
         Mappings: getStringKeyOrError('Mappings', resourceProperties, 'Invalid resourceProperties'),
+        SingleValueMapping: getStringKeyOrError('SingleValueMapping', resourceProperties, 'Invalid resourceProperties'),
         WholeFile: getStringOrBooleanKeyOrError('WholeFile', resourceProperties, 'Invalid resourceProperties'),
         SecretArn: getStringKeyOrError('SecretArn', resourceProperties, 'Invalid resourceProperties'),
         SourceHash: getStringKeyOrError('SourceHash', resourceProperties, 'Invalid resourceProperties'),

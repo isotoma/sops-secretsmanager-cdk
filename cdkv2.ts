@@ -72,10 +72,19 @@ export class SopsSecretsManager extends constructs.Construct {
         }
         this.asset = this.getAsset(props.asset, props.path);
 
-        if (props.wholeFile && props.mappings) {
-            throw new Error('Cannot set mappings and set wholeFile to true');
-        } else if (!props.wholeFile && !props.mappings) {
-            throw new Error('Must set mappings or set wholeFile to true');
+        const mutuallyExclusiveProps: Record<string, boolean> = {
+            wholeFile: !!props.wholeFile,
+            mappings: !!props.mappings,
+            singleValueMapping: !!props.singleValueMapping,
+        }
+
+        const mutuallyExclusivePropsEnabled = Object.keys(mutuallyExclusiveProps).filter((key) => mutuallyExclusiveProps[key]);
+        if (mutuallyExclusivePropsEnabled.length > 1) {
+            throw new Error(`Cannot set more than one of ${mutuallyExclusivePropsEnabled.join(', ')}`);
+        }
+
+        if (mutuallyExclusivePropsEnabled.length === 0) {
+            throw new Error(`Must set one of ${Object.keys(mutuallyExclusiveProps).join(', ')}`);
         }
 
         const provider = SopsSecretsManagerProvider.getOrCreate(this);
@@ -90,6 +99,7 @@ export class SopsSecretsManager extends constructs.Construct {
                 SourceHash: this.asset.assetHash,
                 KMSKeyArn: props.kmsKey?.keyArn,
                 Mappings: JSON.stringify(props.mappings || {}),
+                SingleValueMapping: JSON.stringify(props.singleValueMapping || null),
                 WholeFile: props.wholeFile || false,
                 FileType: props.fileType,
             },

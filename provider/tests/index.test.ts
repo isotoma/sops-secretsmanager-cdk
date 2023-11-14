@@ -115,6 +115,7 @@ describe('onCreate', () => {
                             path: ['a'],
                         },
                     }),
+                    SingleValueMapping: JSON.stringify(null),
                     WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
@@ -175,6 +176,7 @@ describe('onCreate', () => {
                             path: ['a'],
                         },
                     }),
+                    SingleValueMapping: JSON.stringify(null),
                     WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
@@ -221,6 +223,7 @@ describe('onCreate', () => {
                             path: ['a'],
                         },
                     }),
+                    SingleValueMapping: JSON.stringify(null),
                     WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
@@ -262,6 +265,7 @@ describe('onCreate', () => {
                         encoding: 'json',
                     },
                 }),
+                SingleValueMapping: JSON.stringify(null),
                 WholeFile: false,
                 SecretArn: 'mysecretarn',
                 SourceHash: '123',
@@ -303,6 +307,7 @@ describe('onCreate', () => {
                         encoding: 'json',
                     },
                 }),
+                SingleValueMapping: JSON.stringify(null),
                 WholeFile: 'false', // because a boolean set in the CDK becomes a string once it reaches the provider
                 SecretArn: 'mysecretarn',
                 SourceHash: '123',
@@ -337,6 +342,7 @@ describe('onCreate', () => {
                 S3Bucket: 'mys3bucket',
                 S3Path: 'mys3path.txt',
                 Mappings: JSON.stringify({}),
+                SingleValueMapping: JSON.stringify(null),
                 WholeFile: true,
                 SecretArn: 'mysecretarn',
                 SourceHash: '123',
@@ -356,6 +362,38 @@ describe('onCreate', () => {
         expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
             SecretId: 'mysecretarn',
             SecretString: 'mysecretdata',
+        });
+    });
+
+    test('singleValueMapping', async () => {
+        setMockSpawn({
+            stdoutData: JSON.stringify({
+                a: {
+                    b: 'c',
+                },
+            }),
+        });
+
+        await onEvent({
+            RequestType: 'Create',
+            ResourceProperties: {
+                KMSKeyArn: undefined,
+                S3Bucket: 'mys3bucket',
+                S3Path: 'mys3path.txt',
+                Mappings: JSON.stringify({}),
+                SingleValueMapping: JSON.stringify({
+                    path: ['a', 'b'],
+                }),
+                WholeFile: false,
+                SecretArn: 'mysecretarn',
+                SourceHash: '123',
+                FileType: undefined,
+            },
+        });
+
+        expect(mockSecretsManagerPutSecretValue).toBeCalledWith({
+            SecretId: 'mysecretarn',
+            SecretString: 'c',
         });
     });
 
@@ -383,6 +421,7 @@ describe('onCreate', () => {
                             path: ['a'],
                         },
                     }),
+                    SingleValueMapping: JSON.stringify(null),
                     WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
@@ -436,6 +475,7 @@ describe('onUpdate', () => {
                             path: ['a'],
                         },
                     }),
+                    SingleValueMapping: JSON.stringify(null),
                     WholeFile: false,
                     SecretArn: 'mysecretarn',
                     SourceHash: '123',
@@ -554,6 +594,7 @@ describe('invalid event attribute value shapes', () => {
                     path: ['a'],
                 },
             }),
+            SingleValueMapping: JSON.stringify(null),
             WholeFile: false,
             SecretArn: 'mysecretarn',
             SourceHash: '123',
