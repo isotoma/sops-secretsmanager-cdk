@@ -21,6 +21,7 @@ export interface SopsSecretsManagerBaseProps {
     readonly kmsKey?: unknown;
     readonly mappings?: SopsSecretsManagerMappings;
     readonly wholeFile?: boolean;
+    readonly singleValueMapping?: SopsSecretsManagerMapping;
     readonly fileType?: SopsSecretsManagerFileType;
 }
 
