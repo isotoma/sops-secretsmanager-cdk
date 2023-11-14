@@ -1,6 +1,6 @@
 {
     "name": "sops-secretsmanager-cdk",
-    "version": "3.1.1",
+    "version": "3.2.0",
     "description": "Safely load secrets from sops into secretsmanager using the CDK",
     "license": "MIT",
     "author": {

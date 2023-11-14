@@ -1,5 +1,18 @@
 ### Changelog
 
+#### [3.2.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.1.1...3.2.0)
+
+> 14 November 2023
+
+- Add singleValueMapping option [`#115`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/115)
+- Bump @babel/traverse from 7.20.12 to 7.23.2 in /provider [`#113`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/113)
+- Bump @babel/traverse from 7.22.4 to 7.23.2 [`#114`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/114)
+- Bump semver from 5.7.1 to 5.7.2 in /example/sops-example [`#112`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/112)
+- Bump word-wrap from 1.2.3 to 1.2.4 in /provider [`#110`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/110)
+- Bump word-wrap from 1.2.3 to 1.2.4 in /example/sops-example [`#109`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/109)
+- Bump word-wrap from 1.2.3 to 1.2.4 [`#111`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/111)
+- Bump tough-cookie from 4.1.2 to 4.1.3 [`#108`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/108)
+
 #### [3.1.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.1.0...3.1.1)
 
 > 31 May 2023
