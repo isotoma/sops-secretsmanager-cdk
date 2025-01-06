@@ -71,18 +71,10 @@ It takes an object, where:
     - `path`, required, an array of strings, pointing to a value in the structured sops data
     - `encoding`, optional, `'string'` or `'json'`, control how to alter the value found from sops for storage in Secrets Manager
 
-## CDK v1 and v2
+## Usage
 
-CDK v2:
 ```typescript
 import { SopsSecretsManager } from 'sops-secretsmanager-cdk';
-// or
-import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv2';
-```
-
-CDK v1:
-```typescript
-import { SopsSecretsManager } from 'sops-secretsmanager-cdk/cdkv1';
 ```
 
 ## Implementation
