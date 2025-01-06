@@ -1,5 +1,11 @@
 ### Changelog
 
+### [4.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.2.0...4.0.0)
+
+> 6 January 2025
+
+- Remove CDKv1 code and update deps [`#119`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/119)
+
 #### [3.2.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.1.1...3.2.0)
 
 > 14 November 2023
