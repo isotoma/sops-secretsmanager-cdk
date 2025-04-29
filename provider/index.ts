@@ -172,8 +172,6 @@ const toMappingsOrError = (obj: unknown, errorMessage: string): Mappings => {
 };
 
 const toMappingOrNullOrError = (obj: unknown, errorMessage: string): Mapping | null => {
-    console.log('obj', obj);
-
     if (obj === null) {
         return null;
     }
@@ -247,9 +245,7 @@ const sopsDecode = async (fileContent: string, dataType: string, kmsKeyArn: stri
     } catch {
         result = '{}';
     }
-    log('Sops command result', { result });
     const parsed = JSON.parse(result);
-    log('Sops command result', { parsed });
     return Promise.resolve(parsed);
 };
 
@@ -351,7 +347,6 @@ const handleCreate = async (event: CreateOrUpdateEvent): Promise<Response> => {
     log('Determining file type', { s3Path, fileType, wholeFile });
     const fileTypeToUse = determineFileType(s3Path, fileType, wholeFile);
     log('Decoding with sops', {
-        fileBody,
         fileTypeToUse,
         kmsKeyArn,
     });
