@@ -1,5 +1,15 @@
 ### Changelog
 
+#### [4.0.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/4.0.0...4.0.1)
+
+> 29 April 2025
+
+- Clean up provider logging [`#126`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/126)
+- Bump aws-cdk-lib from 2.186.0 to 2.189.1 in /example/sops-example [`#125`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/125)
+- Bump aws-cdk-lib from 2.186.0 to 2.189.0 [`#124`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/124)
+- Bump aws-cdk-lib from 2.81.0 to 2.186.0 in /example/sops-example [`#122`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/122)
+- Bump aws-cdk-lib from 2.174.0 to 2.186.0 [`#123`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/123)
+
 ### [4.0.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/3.2.0...4.0.0)
 
 > 6 January 2025
