@@ -92,7 +92,7 @@ Both the IAM policy (granted by this construct) AND the KMS key policy must allo
 
 ### Required KMS Key Policy Permissions
 
-The KMS key policy must allow the Lambda execution role to perform the following actions:
+The KMS key policy must allow the Lambda execution role to perform the following actions as a minimum for this construct to function correctly:
 
 - `kms:Decrypt` - Required to decrypt the SOPS file
 - `kms:DescribeKey` - May be required for key metadata operations
