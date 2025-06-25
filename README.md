@@ -90,16 +90,27 @@ For the Lambda function to successfully decrypt SOPS files, the KMS key used for
 
 Both the IAM policy (granted by this construct) AND the KMS key policy must allow the Lambda execution role to use the key.
 
-### Required KMS Key Policy Permissions
+### Approach 1: Delegate All Permissions to IAM (Simplest)
 
-The KMS key policy must allow the Lambda execution role to perform the following actions as a minimum for this construct to function correctly:
+The simplest approach is to configure your KMS key policy to delegate all access control decisions to IAM policies. This allows the IAM permissions granted by this CDK construct to take full effect:
 
-- `kms:Decrypt` - Required to decrypt the SOPS file
-- `kms:DescribeKey` - May be required for key metadata operations
+```json
+{
+  "Sid": "DelegateToIAM",
+  "Effect": "Allow",
+  "Principal": {
+    "AWS": "arn:aws:iam::ACCOUNT-ID:root"
+  },
+  "Action": "kms:*",
+  "Resource": "*"
+}
+```
 
-### Example KMS Key Policy
+Replace `ACCOUNT-ID` with your AWS account ID. This approach is the least secure as it grants broad KMS permissions to all principals in your account, relying entirely on IAM policies for access control.
 
-Here's an example key policy statement that grants the necessary permissions to the Lambda execution role:
+### Approach 2: Grant Specific Role Access (More Secure)
+
+A more secure approach is to explicitly grant only the necessary permissions to the specific Lambda execution role:
 
 ```json
 {
@@ -118,7 +129,7 @@ Here's an example key policy statement that grants the necessary permissions to 
 
 Replace `ACCOUNT-ID` with your AWS account ID and `LAMBDA-EXECUTION-ROLE-NAME` with the actual name of the Lambda execution role created by this CDK construct.
 
-### Finding the Lambda Execution Role ARN
+#### Finding the Lambda Execution Role ARN
 
 The Lambda execution role is created automatically by this CDK construct. You can find its ARN by:
 
@@ -126,9 +137,9 @@ The Lambda execution role is created automatically by this CDK construct. You ca
 2. Checking the CloudFormation stack outputs or resources
 3. Using the AWS CLI: `aws iam list-roles --path-prefix /` and filtering for the relevant role
 
-### Alternative: Using Key Policy Conditions
+### Approach 3: Use Conditions for Flexible Access (Most Secure)
 
-Instead of specifying the exact role ARN, you can use conditions to allow any role that has the required permissions:
+The most refined approach uses conditions to allow access while maintaining security constraints:
 
 ```json
 {
@@ -150,7 +161,7 @@ Instead of specifying the exact role ARN, you can use conditions to allow any ro
 }
 ```
 
-This approach allows any Lambda function in your account to use the key, which may be more flexible for some use cases.
+Replace `ACCOUNT-ID` with your AWS account ID and `REGION` with your AWS region. This approach ensures that the key can only be used by Lambda functions in your account and region, providing a good balance between security and flexibility.
 
 ## Integration testing
 
