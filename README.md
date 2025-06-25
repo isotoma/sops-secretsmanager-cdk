@@ -84,6 +84,85 @@ is uploaded to S3 as an asset _as is_, still encoded. The custom
 resource Lambda then decodes the secrets (in memory, never on disk)
 and puts them into the SecretsManager secret.
 
+## KMS Key Policy Requirements
+
+For the Lambda function to successfully decrypt SOPS files, the KMS key used for encryption must have a key policy that allows the Lambda execution role to perform decryption operations. While this CDK construct grants the Lambda broad KMS permissions via IAM policies (`kms:*`), KMS key policies are resource-based policies that can override IAM permissions.
+
+Both the IAM policy (granted by this construct) AND the KMS key policy must allow the Lambda execution role to use the key.
+
+### Approach 1: Delegate All Permissions to IAM (Simplest)
+
+The simplest approach is to configure your KMS key policy to delegate all access control decisions to IAM policies. This allows the IAM permissions granted by this CDK construct to take full effect:
+
+```json
+{
+  "Sid": "DelegateToIAM",
+  "Effect": "Allow",
+  "Principal": {
+    "AWS": "arn:aws:iam::ACCOUNT-ID:root"
+  },
+  "Action": "kms:*",
+  "Resource": "*"
+}
+```
+
+Replace `ACCOUNT-ID` with your AWS account ID. This approach is the least secure as it grants broad KMS permissions to all principals in your account, relying entirely on IAM policies for access control.
+
+### Approach 2: Grant Specific Role Access (More Secure)
+
+A more secure approach is to explicitly grant only the necessary permissions to the specific Lambda execution role:
+
+```json
+{
+  "Sid": "AllowSopsSecretsManagerLambda",
+  "Effect": "Allow",
+  "Principal": {
+    "AWS": "arn:aws:iam::ACCOUNT-ID:role/LAMBDA-EXECUTION-ROLE-NAME"
+  },
+  "Action": [
+    "kms:Decrypt",
+    "kms:DescribeKey"
+  ],
+  "Resource": "*"
+}
+```
+
+Replace `ACCOUNT-ID` with your AWS account ID and `LAMBDA-EXECUTION-ROLE-NAME` with the actual name of the Lambda execution role created by this CDK construct.
+
+#### Finding the Lambda Execution Role ARN
+
+The Lambda execution role is created automatically by this CDK construct. You can find its ARN by:
+
+1. Looking in the AWS IAM console for roles with names containing your stack name and "sops-secrets-manager"
+2. Checking the CloudFormation stack outputs or resources
+3. Using the AWS CLI: `aws iam list-roles --path-prefix /` and filtering for the relevant role
+
+### Approach 3: Use Conditions for Flexible Access (Most Secure)
+
+The most refined approach uses conditions to allow access while maintaining security constraints:
+
+```json
+{
+  "Sid": "AllowSopsSecretsManagerLambda",
+  "Effect": "Allow",
+  "Principal": {
+    "AWS": "arn:aws:iam::ACCOUNT-ID:root"
+  },
+  "Action": [
+    "kms:Decrypt",
+    "kms:DescribeKey"
+  ],
+  "Resource": "*",
+  "Condition": {
+    "StringEquals": {
+      "kms:ViaService": "lambda.REGION.amazonaws.com"
+    }
+  }
+}
+```
+
+Replace `ACCOUNT-ID` with your AWS account ID and `REGION` with your AWS region. This approach ensures that the key can only be used by Lambda functions in your account and region, providing a good balance between security and flexibility.
+
 ## Integration testing
 
 Run the following to deploy a test stack named
