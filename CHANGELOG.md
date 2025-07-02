@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [4.1.0](https://github.com/isotoma/sops-secretsmanager-cdk/compare/4.0.1...4.1.0)
+
+> 2 July 2025
+
+- Upgrade Lambda runtime from 18 to 22 [`#128`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/128)
+- Upgrade Lambda runtime from 18 to 22 [`#128`](https://github.com/isotoma/sops-secretsmanager-cdk/pull/128)
+
 #### [4.0.1](https://github.com/isotoma/sops-secretsmanager-cdk/compare/4.0.0...4.0.1)
 
 > 29 April 2025
