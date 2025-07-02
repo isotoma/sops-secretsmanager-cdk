@@ -36,11 +36,7 @@ class SopsSecretsManagerProvider extends constructs.Construct {
         this.provider = new customResource.Provider(this, common.providerLogicalId, {
             onEventHandler: new lambda.Function(this, common.providerFunctionLogicalId, {
                 code: lambda.Code.fromAsset(common.providerCodePath),
-                // CDK v2 does have lambda.Runtime.NODEJS_18_X, but
-                // only >=2.51.0 It is supported in all commercial
-                // regions. See
-                // https://aws.amazon.com/about-aws/whats-new/2022/11/aws-lambda-support-node-js-18/
-                runtime: new lambda.Runtime('nodejs18.x', lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true }),
+                runtime: new lambda.Runtime('nodejs22.x', lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true }),
                 handler: common.providerHandler,
                 timeout: cdk.Duration.minutes(common.providerTimoutMinutes),
                 initialPolicy: policyStatements,
