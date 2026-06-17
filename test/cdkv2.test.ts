@@ -213,15 +213,10 @@ test('uses a secret, creates a custom resource', () => {
 });
 
 const allPolicyStatements = (template: Template): Array<Record<string, unknown>> =>
-    Object.values(template.findResources('AWS::IAM::Policy')).flatMap(
-        (p: any) => p.Properties?.PolicyDocument?.Statement ?? [],
-    );
+    Object.values(template.findResources('AWS::IAM::Policy')).flatMap(p => p.Properties?.PolicyDocument?.Statement ?? []);
 
 const hasWildcardAction = (statements: Array<Record<string, unknown>>, action: string): boolean =>
-    statements.some((s) =>
-        s.Action === action ||
-        (Array.isArray(s.Action) && (s.Action as string[]).includes(action)),
-    );
+    statements.some(s => s.Action === action || (Array.isArray(s.Action) && (s.Action as string[]).includes(action)));
 
 test('grants scoped S3 read access to the asset for the Lambda', () => {
     const stack = new Stack();
@@ -239,9 +234,7 @@ test('grants scoped S3 read access to the asset for the Lambda', () => {
     const template = Template.fromStack(stack);
 
     // S3 read policy must be scoped to specific bucket/key, not a bare '*'
-    const s3Statements = allPolicyStatements(template).filter((s) =>
-        Array.isArray(s.Action) && (s.Action as string[]).some((a) => a.startsWith('s3:')),
-    );
+    const s3Statements = allPolicyStatements(template).filter(s => Array.isArray(s.Action) && (s.Action as string[]).some(a => a.startsWith('s3:')));
     expect(s3Statements.length).toBeGreaterThan(0);
     for (const stmt of s3Statements) {
         expect(stmt.Resource).not.toBe('*');
@@ -342,7 +335,7 @@ test('grants scoped KMS decrypt access when a kmsKey is provided', () => {
     expect(hasWildcardAction(allPolicyStatements(template), 'kms:*')).toBe(false);
 
     // When a specific key is provided the resource must also be scoped (no kms:Decrypt *)
-    const wildcardDecrypt = allPolicyStatements(template).filter((s) => {
+    const wildcardDecrypt = allPolicyStatements(template).filter(s => {
         const isDecrypt = s.Action === 'kms:Decrypt' || (Array.isArray(s.Action) && (s.Action as string[]).includes('kms:Decrypt'));
         return isDecrypt && s.Resource === '*';
     });
@@ -365,7 +358,7 @@ test('falls back to kms:Decrypt * when no kmsKey is provided', () => {
     const template = Template.fromStack(stack);
     const stmts = allPolicyStatements(template);
 
-    const wildcardDecrypt = stmts.filter((s) => {
+    const wildcardDecrypt = stmts.filter(s => {
         const isDecrypt = s.Action === 'kms:Decrypt' || (Array.isArray(s.Action) && (s.Action as string[]).includes('kms:Decrypt'));
         return isDecrypt && s.Resource === '*';
     });
