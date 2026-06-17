@@ -1,4 +1,4 @@
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { Stack } from 'aws-cdk-lib/core';
 import { SopsSecretsManager } from '../cdkv2';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
@@ -210,6 +210,132 @@ test('uses a secret, creates a custom resource', () => {
     template.hasResourceProperties('AWS::SecretsManager::Secret', {
         Name: 'MySecret',
     });
+});
+
+const allPolicyStatements = (template: Template): Array<Record<string, unknown>> =>
+    Object.values(template.findResources('AWS::IAM::Policy')).flatMap(
+        (p: any) => p.Properties?.PolicyDocument?.Statement ?? [],
+    );
+
+test('grants scoped S3 read access to the asset for the Lambda', () => {
+    const stack = new Stack();
+
+    const secretValues = new SopsSecretsManager(stack, 'SecretValues', {
+        secretName: 'MySecret',
+        path: './test/test.yaml',
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    const template = Template.fromStack(stack);
+
+    // S3 read policy must be scoped to specific bucket/key, not a bare '*'
+    const s3Statements = allPolicyStatements(template).filter((s) =>
+        Array.isArray(s.Action) && (s.Action as string[]).some((a) => a.startsWith('s3:')),
+    );
+    expect(s3Statements.length).toBeGreaterThan(0);
+    for (const stmt of s3Statements) {
+        expect(stmt.Resource).not.toBe('*');
+        expect(Array.isArray(stmt.Resource)).toBe(true);
+    }
+
+    void secretValues;
+});
+
+test('grants scoped SecretsManager write access to the specific secret for the Lambda', () => {
+    const stack = new Stack();
+
+    const secretValues = new SopsSecretsManager(stack, 'SecretValues', {
+        secretName: 'MySecret',
+        path: './test/test.yaml',
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+            Statement: Match.arrayWith([
+                Match.objectLike({
+                    Action: Match.arrayWith(['secretsmanager:PutSecretValue']),
+                    Resource: stack.resolve((secretValues.secret as secretsManager.Secret).secretArn),
+                }),
+            ]),
+        },
+    });
+
+    const wildcardSM = allPolicyStatements(template).filter((s) => s.Action === 'secretsmanager:*');
+    expect(wildcardSM).toHaveLength(0);
+});
+
+test('grants scoped SecretsManager write access when passing an existing secret', () => {
+    const stack = new Stack();
+
+    const secret = new secretsManager.Secret(stack, 'Secret', {
+        secretName: 'MySecret',
+    });
+
+    new SopsSecretsManager(stack, 'SecretValues', {
+        secret,
+        path: './test/test.yaml',
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+            Statement: Match.arrayWith([
+                Match.objectLike({
+                    Action: Match.arrayWith(['secretsmanager:PutSecretValue']),
+                    Resource: stack.resolve(secret.secretArn),
+                }),
+            ]),
+        },
+    });
+});
+
+test('grants scoped KMS decrypt access when a kmsKey is provided', () => {
+    const stack = new Stack();
+
+    const kmsKey = new kms.Key(stack, 'Key');
+
+    new SopsSecretsManager(stack, 'SecretValues', {
+        secretName: 'MySecret',
+        path: './test/test.yaml',
+        kmsKey,
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+            Statement: Match.arrayWith([
+                Match.objectLike({
+                    Action: 'kms:Decrypt',
+                    Resource: stack.resolve(kmsKey.keyArn),
+                }),
+            ]),
+        },
+    });
+
+    const wildcardKMS = allPolicyStatements(template).filter((s) => s.Action === 'kms:*');
+    expect(wildcardKMS).toHaveLength(0);
 });
 
 // No node12 hack behaviour to test in cdk v2

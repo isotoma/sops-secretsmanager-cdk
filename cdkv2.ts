@@ -84,6 +84,14 @@ export class SopsSecretsManager extends constructs.Construct {
         }
 
         const provider = SopsSecretsManagerProvider.getOrCreate(this);
+        const providerFn = provider.onEventHandler;
+
+        this.asset.grantRead(providerFn);
+
+        const secretForGrant: secretsManager.ISecret = props.secret ?? this.secret!;
+        secretForGrant.grantWrite(providerFn);
+
+        props.kmsKey?.grantDecrypt(providerFn);
 
         new cdk.CustomResource(this, 'Resource', {
             serviceToken: provider.serviceToken,

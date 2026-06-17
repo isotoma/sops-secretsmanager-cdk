@@ -39,11 +39,5 @@ interface PolicyStatement {
 
 export const providerPolicyStatements: Array<PolicyStatement> = [{
     resources: ['*'],
-    actions: ['s3:GetObject*', 's3:GetBucket*', 's3:List*', 's3:DeleteObject*', 's3:PutObject*', 's3:Abort*'],
-}, {
-    resources: ['*'],
-    actions: ['kms:*'],
-}, {
-    resources: ['*'],
-    actions: ['secretsmanager:*'],
+    actions: ['kms:Decrypt'],
 }];
