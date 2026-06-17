@@ -217,6 +217,12 @@ const allPolicyStatements = (template: Template): Array<Record<string, unknown>>
         (p: any) => p.Properties?.PolicyDocument?.Statement ?? [],
     );
 
+const hasWildcardAction = (statements: Array<Record<string, unknown>>, action: string): boolean =>
+    statements.some((s) =>
+        s.Action === action ||
+        (Array.isArray(s.Action) && (s.Action as string[]).includes(action)),
+    );
+
 test('grants scoped S3 read access to the asset for the Lambda', () => {
     const stack = new Stack();
 
@@ -271,8 +277,7 @@ test('grants scoped SecretsManager write access to the specific secret for the L
         },
     });
 
-    const wildcardSM = allPolicyStatements(template).filter((s) => s.Action === 'secretsmanager:*');
-    expect(wildcardSM).toHaveLength(0);
+    expect(hasWildcardAction(allPolicyStatements(template), 'secretsmanager:*')).toBe(false);
 });
 
 test('grants scoped SecretsManager write access when passing an existing secret', () => {
@@ -334,8 +339,37 @@ test('grants scoped KMS decrypt access when a kmsKey is provided', () => {
         },
     });
 
-    const wildcardKMS = allPolicyStatements(template).filter((s) => s.Action === 'kms:*');
-    expect(wildcardKMS).toHaveLength(0);
+    expect(hasWildcardAction(allPolicyStatements(template), 'kms:*')).toBe(false);
+
+    // When a specific key is provided the resource must also be scoped (no kms:Decrypt *)
+    const wildcardDecrypt = allPolicyStatements(template).filter((s) => {
+        const isDecrypt = s.Action === 'kms:Decrypt' || (Array.isArray(s.Action) && (s.Action as string[]).includes('kms:Decrypt'));
+        return isDecrypt && s.Resource === '*';
+    });
+    expect(wildcardDecrypt).toHaveLength(0);
+});
+
+test('falls back to kms:Decrypt * when no kmsKey is provided', () => {
+    const stack = new Stack();
+
+    new SopsSecretsManager(stack, 'SecretValues', {
+        secretName: 'MySecret',
+        path: './test/test.yaml',
+        mappings: {
+            mykey: {
+                path: ['a', 'b'],
+            },
+        },
+    });
+
+    const template = Template.fromStack(stack);
+    const stmts = allPolicyStatements(template);
+
+    const wildcardDecrypt = stmts.filter((s) => {
+        const isDecrypt = s.Action === 'kms:Decrypt' || (Array.isArray(s.Action) && (s.Action as string[]).includes('kms:Decrypt'));
+        return isDecrypt && s.Resource === '*';
+    });
+    expect(wildcardDecrypt.length).toBeGreaterThan(0);
 });
 
 // No node12 hack behaviour to test in cdk v2

@@ -37,7 +37,4 @@ interface PolicyStatement {
     actions: Array<string>;
 };
 
-export const providerPolicyStatements: Array<PolicyStatement> = [{
-    resources: ['*'],
-    actions: ['kms:Decrypt'],
-}];
+export const providerPolicyStatements: Array<PolicyStatement> = [];
