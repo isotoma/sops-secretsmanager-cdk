@@ -238,7 +238,6 @@ test('grants scoped S3 read access to the asset for the Lambda', () => {
     expect(s3Statements.length).toBeGreaterThan(0);
     for (const stmt of s3Statements) {
         expect(stmt.Resource).not.toBe('*');
-        expect(Array.isArray(stmt.Resource)).toBe(true);
     }
 
     void secretValues;

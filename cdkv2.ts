@@ -30,7 +30,7 @@ class SopsSecretsManagerProvider extends constructs.Construct {
 
         const onEventHandler = new lambda.Function(this, common.providerFunctionLogicalId, {
             code: lambda.Code.fromAsset(common.providerCodePath),
-            runtime: lambda.Runtime.NODEJS_22_X,
+            runtime: new lambda.Runtime('nodejs22.x', lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true }),
             handler: common.providerHandler,
             timeout: cdk.Duration.minutes(common.providerTimoutMinutes),
         });
