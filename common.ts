@@ -37,4 +37,10 @@ interface PolicyStatement {
     actions: Array<string>;
 };
 
+/**
+ * @deprecated Retained for backwards compatibility only. The provider Lambda's
+ * permissions are now granted directly in SopsSecretsManager via scoped
+ * grant*() calls (asset read, secret write, KMS decrypt), so this is
+ * intentionally empty and is no longer a supported customization point.
+ */
 export const providerPolicyStatements: Array<PolicyStatement> = [];
