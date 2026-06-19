@@ -17,7 +17,6 @@ module.exports = tseslint.config(
         language: 'json/json',
         ...json.configs.recommended,
     },
-    prettierRecommended,
     {
         languageOptions: {
             ecmaVersion: 2018,
@@ -29,4 +28,5 @@ module.exports = tseslint.config(
             },
         },
     },
+    prettierRecommended,
 );

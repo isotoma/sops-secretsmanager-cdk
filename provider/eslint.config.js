@@ -8,7 +8,6 @@ const prettierRecommended = require('eslint-plugin-prettier/recommended');
 //    It must come last so it can override formatting rules.
 module.exports = tseslint.config(
     ...tseslint.configs.recommended,
-    prettierRecommended,
     {
         languageOptions: {
             ecmaVersion: 2018,
@@ -20,4 +19,5 @@ module.exports = tseslint.config(
             },
         },
     },
+    prettierRecommended,
 );
