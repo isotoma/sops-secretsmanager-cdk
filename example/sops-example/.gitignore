@@ -2,7 +2,7 @@ lib/sops-secretsmanager-cdk-dev/
 
 *.js
 !jest.config.js
-!.eslintrc.js
+!eslint.config.js
 *.d.ts
 node_modules
 

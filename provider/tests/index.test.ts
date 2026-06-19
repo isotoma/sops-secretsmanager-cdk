@@ -54,9 +54,9 @@ class MockChildProcess extends events.EventEmitter {
         this.stdout = new events.EventEmitter();
         this.stderr = new events.EventEmitter();
 
-        this.stdin = ({
+        this.stdin = {
             end: jest.fn(),
-        } as unknown) as Writable;
+        } as unknown as Writable;
     }
 }
 
