@@ -28,20 +28,13 @@ class SopsSecretsManagerProvider extends constructs.Construct {
     constructor(scope: constructs.Construct, id: string) {
         super(scope, id);
 
-        const policyStatements: Array<iam.PolicyStatement> = [];
-        for (const statement of common.providerPolicyStatements) {
-            policyStatements.push(new iam.PolicyStatement(statement));
-        }
-
-        this.provider = new customResource.Provider(this, common.providerLogicalId, {
-            onEventHandler: new lambda.Function(this, common.providerFunctionLogicalId, {
-                code: lambda.Code.fromAsset(common.providerCodePath),
-                runtime: new lambda.Runtime('nodejs22.x', lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true }),
-                handler: common.providerHandler,
-                timeout: cdk.Duration.minutes(common.providerTimoutMinutes),
-                initialPolicy: policyStatements,
-            }),
+        const onEventHandler = new lambda.Function(this, common.providerFunctionLogicalId, {
+            code: lambda.Code.fromAsset(common.providerCodePath),
+            runtime: new lambda.Runtime('nodejs22.x', lambda.RuntimeFamily.NODEJS, { supportsInlineCode: true }),
+            handler: common.providerHandler,
+            timeout: cdk.Duration.minutes(common.providerTimoutMinutes),
         });
+        this.provider = new customResource.Provider(this, common.providerLogicalId, { onEventHandler });
     }
 }
 
@@ -84,6 +77,23 @@ export class SopsSecretsManager extends constructs.Construct {
         }
 
         const provider = SopsSecretsManagerProvider.getOrCreate(this);
+        const providerFn = provider.onEventHandler;
+
+        this.asset.grantRead(providerFn);
+
+        const secretForGrant: secretsManager.ISecret = props.secret ?? this.secret!;
+        secretForGrant.grantWrite(providerFn);
+
+        if (props.kmsKey) {
+            props.kmsKey.grantDecrypt(providerFn);
+        } else {
+            // The KMS key ARN is embedded in the SOPS file and only known at
+            // runtime, so a wildcard resource grant is needed as a fallback.
+            providerFn.addToRolePolicy(new iam.PolicyStatement({
+                resources: ['*'],
+                actions: ['kms:Decrypt'],
+            }));
+        }
 
         new cdk.CustomResource(this, 'Resource', {
             serviceToken: provider.serviceToken,
