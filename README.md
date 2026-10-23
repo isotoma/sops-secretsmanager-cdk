@@ -122,7 +122,7 @@ npm stage approve <stage-id>
 ```
 
 `npm stage reject` discards it instead. A staged version occupies its version
-number, so a rejected version has to be rejected before it can be staged again.
+number, so to stage the same version again, reject the existing stage first.
 
 ### Authentication
 
