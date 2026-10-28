@@ -142,3 +142,11 @@ CLI falls back to token authentication and fails with a misleading `E404`.
 
 OIDC covers `npm publish` and `npm stage publish` only. The approve, reject, list
 and view subcommands need interactive authentication and cannot use it.
+
+### Install lag on the Isotoma npm proxy
+
+Installs that resolve through `packages.isotoma.com` only see versions published
+at least 14 days ago. The proxy strips newer versions from the package metadata
+and rejects their tarballs with `403 ... is too new`. A fresh release therefore
+cannot be installed by anyone using the proxy until it is a fortnight old, so a
+release that fixes a security problem does not reach those consumers immediately.
