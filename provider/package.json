@@ -7,7 +7,7 @@
         "url": "https://isotoma.com"
     },
     "scripts": {
-        "get-sops": "wget https://github.com/mozilla/sops/releases/download/v3.7.3/sops-v3.7.3.linux -O ./sops && chmod a+x ./sops",
+        "get-sops": "wget https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.amd64 -O ./sops && echo 'e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b  sops' | sha256sum -c - && chmod a+x ./sops",
         "tsc": "tsc",
         "clean": "rm -rf build/",
         "compile": "npm run clean && npm run -- tsc --outDir build/ --declaration false && npm run get-sops && cp -R ./sops ./build/",
@@ -29,6 +29,6 @@
         "jest": "~29.3.1",
         "prettier": "1.19.1",
         "ts-jest": "29.0.3",
-        "typescript": ">=3.0.0"
+        "typescript": "~5.6.3"
     }
 }
